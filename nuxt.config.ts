@@ -1,9 +1,14 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: '2024-07-11',
   future: { compatibilityVersion: 4 },
-  modules: ['@nuxtjs/supabase'],
+  
+  modules: [
+    '@nuxtjs/supabase',
+    '@nuxt/ui',
+    '@vueuse/nuxt'
+  ],
   
   supabase: {
     redirectOptions: {
@@ -29,6 +34,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/admin/**': { ssr: false }
+    '/admin/**': { ssr: false },
+    '/api/**': { cors: true }
   }
 })
