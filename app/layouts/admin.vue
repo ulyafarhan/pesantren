@@ -1,39 +1,27 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <div class="min-h-screen bg-background flex w-full">
-    <aside class="w-64 border-r bg-muted/40 flex flex-col">
-      <div class="h-16 flex items-center border-b px-6">
-        <h1 class="text-lg font-semibold">Admin Pesantren</h1>
+  <div class="min-h-screen flex bg-gray-50">
+    <aside class="w-64 bg-gray-900 text-white flex flex-col hidden md:flex">
+      <div class="h-16 flex items-center justify-center border-b border-gray-800">
+        <span class="font-bold text-xl">Panel Admin</span>
       </div>
-      <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-        <NuxtLink to="/admin" class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" active-class="bg-muted text-primary">Dashboard</NuxtLink>
-        <NuxtLink to="/admin/articles" class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" active-class="bg-muted text-primary">Artikel</NuxtLink>
+      <nav class="flex-1 p-4 flex flex-col gap-2">
+        <NuxtLink to="/admin" class="px-4 py-2 rounded hover:bg-gray-800 transition-colors">Dashboard</NuxtLink>
+        <NuxtLink to="/admin/articles" class="px-4 py-2 rounded hover:bg-gray-800 transition-colors">Kelola Artikel</NuxtLink>
+        <NuxtLink to="/" class="px-4 py-2 rounded hover:bg-gray-800 transition-colors text-gray-400 mt-auto">Kembali ke Web</NuxtLink>
       </nav>
-      <div class="p-4 border-t">
-        <Button variant="destructive" class="w-full" @click="handleLogout">Logout</Button>
-      </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-      <header class="h-16 flex items-center gap-4 border-b bg-muted/40 px-6 lg:px-8">
-        <div class="ml-auto flex items-center space-x-4">
-          <span class="text-sm font-medium">{{ user?.email }}</span>
-        </div>
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="h-16 bg-white shadow-sm flex items-center px-6 justify-between">
+        <div class="font-medium text-gray-800">Sistem Manajemen Konten</div>
       </header>
-      <div class="p-6 flex-1 overflow-auto">
+      
+      <main class="flex-1 p-6 overflow-auto">
         <slot />
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
-
-<script setup>
-import { Button } from '@/components/ui/button'
-
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-
-const handleLogout = async () => {
-  await supabase.auth.signOut()
-  navigateTo('/admin/login')
-}
-</script>

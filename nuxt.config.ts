@@ -34,6 +34,10 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    '/': { prerender: true },
+    '/sejarah': { prerender: true },
+    '/artikel/**': { swr: 3600 },
+    '/galeri': { swr: 3600 },
     '/admin/**': { ssr: false },
     '/api/**': { cors: true }
   }
