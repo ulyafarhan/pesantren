@@ -1,80 +1,71 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'admin-only' })
-
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const loading = ref(false)
-
-const form = reactive({
-  title: '',
-  slug: '',
-  excerpt: '',
-  content: '',
-  is_published: false
+definePageMeta({
+  layout: 'admin'
 })
 
-// Otomatis buat slug dari judul
-watch(() => form.title, (newTitle) => {
-  form.slug = newTitle.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')
-})
+const title = ref('')
+const excerpt = ref('')
+const content = ref('')
+const status = ref('Draf')
+const author = ref('Admin Utama')
 
-async function handleSubmit() {
-  loading.value = true
-  try {
-    const { error } = await supabase.from('articles').insert({
-      ...form,
-      author_id: user.value?.id,
-      published_at: form.is_published ? new Date().toISOString() : null
-    })
+const statusOptions = ['Draf', 'Diterbitkan']
 
-    if (error) throw error
-    
-    alert('Artikel berhasil disimpan!')
-    navigateTo('/admin/articles')
-  } catch (e: any) {
-    alert(e.message)
-  } finally {
-    loading.value = false
-  }
+const handleSave = () => {
+  navigateTo('/admin/articles')
 }
 </script>
 
 <template>
-  <div class="p-8 max-w-4xl mx-auto">
-    <div class="mb-6">
-      <NuxtLink to="/admin/articles" class="text-emerald-600 hover:underline">← Kembali ke Daftar</NuxtLink>
-      <h1 class="text-2xl font-bold mt-2">Buat Artikel Baru</h1>
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Tulis Artikel Baru</h1>
+        <p class="text-gray-500 text-sm mt-1">Buat konten publikasi baru untuk ditampilkan di halaman web.</p>
+      </div>
+      <div class="flex gap-3">
+        <UButton color="white" variant="solid" to="/admin/articles">Batal</UButton>
+        <UButton color="gray" variant="solid" @click="handleSave" icon="i-heroicons-paper-airplane">Simpan & Publikasi</UButton>
+      </div>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-      <div>
-        <label class="block text-sm font-bold mb-2">Judul Artikel</label>
-        <input v-model="form.title" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Masukkan judul..." required />
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-6">
+          <UFormGroup label="Judul Artikel" required>
+            <UInput v-model="title" placeholder="Masukkan judul utama..." size="lg" />
+          </UFormGroup>
+
+          <UFormGroup label="Ringkasan (Excerpt)">
+            <UTextarea v-model="excerpt" placeholder="Deskripsi singkat untuk kartu artikel..." :rows="3" />
+          </UFormGroup>
+
+          <UFormGroup label="Isi Konten" required>
+            <UTextarea v-model="content" placeholder="Tulis isi konten secara lengkap di sini..." :rows="15" />
+          </UFormGroup>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-bold mb-2">Slug (URL)</label>
-        <input v-model="form.slug" type="text" class="w-full px-4 py-2 border bg-slate-50 rounded-lg outline-none text-slate-500" readonly />
-      </div>
+      <div class="space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-6">
+          <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-3">Pengaturan Publikasi</h3>
+          
+          <UFormGroup label="Status Dokumen">
+            <USelect v-model="status" :options="statusOptions" size="md" />
+          </UFormGroup>
 
-      <div>
-        <label class="block text-sm font-bold mb-2">Ringkasan Singkat (Excerpt)</label>
-        <textarea v-model="form.excerpt" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required></textarea>
-      </div>
+          <UFormGroup label="Penulis">
+            <UInput v-model="author" size="md" icon="i-heroicons-user" />
+          </UFormGroup>
 
-      <div>
-        <label class="block text-sm font-bold mb-2">Konten Lengkap</label>
-        <textarea v-model="form.content" rows="10" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required></textarea>
+          <UFormGroup label="Gambar Sampul">
+            <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+              <UIcon name="i-heroicons-photo" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
+              <span class="text-sm text-gray-500">Klik untuk mengunggah gambar</span>
+            </div>
+          </UFormGroup>
+        </div>
       </div>
-
-      <div class="flex items-center gap-2">
-        <input v-model="form.is_published" type="checkbox" id="publish" class="w-4 h-4 accent-emerald-600" />
-        <label for="publish" class="text-sm font-medium">Terbitkan Langsung?</label>
-      </div>
-
-      <button type="submit" :disabled="loading" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition disabled:opacity-50">
-        {{ loading ? 'Menyimpan...' : 'Simpan Artikel' }}
-      </button>
-    </form>
+    </div>
   </div>
 </template>

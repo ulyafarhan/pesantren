@@ -1,71 +1,60 @@
-<template>
-  <div class="min-h-screen flex items-center justify-center bg-muted/40 p-4">
-    <Card class="w-full max-w-md">
-      <CardHeader class="space-y-1 text-center">
-        <CardTitle class="text-2xl font-bold">CMS Pesantren</CardTitle>
-        <CardDescription>Login untuk mengakses panel admin</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form @submit.prevent="handleLogin" class="space-y-4">
-          <div class="space-y-2">
-            <Label for="email">Email</Label>
-            <Input id="email" type="email" v-model="email" required placeholder="admin@pesantren.com" />
-          </div>
-          <div class="space-y-2">
-            <Label for="password">Password</Label>
-            <Input id="password" type="password" v-model="password" required />
-          </div>
-          
-          <div v-if="errorMsg" class="text-sm font-medium text-destructive">
-            {{ errorMsg }}
-          </div>
-
-          <Button type="submit" class="w-full" :disabled="loading">
-            <span v-if="loading">Memverifikasi...</span>
-            <span v-else>Masuk ke Sistem</span>
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  </div>
-</template>
-
-<script setup>
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const errorMsg = ref('')
-
-watchEffect(() => {
-  if (user.value) {
-    navigateTo('/admin')
-  }
-})
-
-const handleLogin = async () => {
-  loading.value = true
-  errorMsg.value = ''
-  
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  })
-  
-  if (error) {
-    errorMsg.value = error.message
-  }
-  
-  loading.value = false
-}
-
+<script setup lang="ts">
 definePageMeta({
   layout: false
 })
+useHead({
+  title: 'Login Admin - PesantrenKu'
+})
+
+const email = ref('')
+const password = ref('')
+const loading = ref(false)
+
+const handleLogin = async () => {
+  loading.value = true
+  setTimeout(() => {
+    loading.value = false
+    navigateTo('/admin')
+  }, 1000)
+}
 </script>
+
+<template>
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-lg border border-gray-100">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-green-700 mb-2">PesantrenKu</h1>
+        <h2 class="text-2xl font-extrabold text-gray-900">
+          Masuk ke Sistem
+        </h2>
+        <p class="mt-2 text-sm text-gray-600">
+          Gunakan kredensial pengelola untuk mengakses panel kontrol.
+        </p>
+      </div>
+      
+      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+        <div class="space-y-5">
+          <UFormGroup label="Alamat Email">
+            <UInput v-model="email" type="email" placeholder="admin@pesantrenku.com" size="xl" icon="i-heroicons-envelope" required />
+          </UFormGroup>
+          
+          <UFormGroup label="Kata Sandi">
+            <UInput v-model="password" type="password" placeholder="••••••••" size="xl" icon="i-heroicons-lock-closed" required />
+          </UFormGroup>
+        </div>
+
+        <div class="pt-2">
+          <UButton type="submit" color="green" variant="solid" size="xl" block :loading="loading" class="justify-center">
+            Masuk ke Dasbor
+          </UButton>
+        </div>
+
+        <div class="text-center mt-6">
+          <NuxtLink to="/" class="text-sm font-medium text-gray-500 hover:text-green-600 transition-colors inline-flex items-center gap-1">
+            <UIcon name="i-heroicons-arrow-left" class="w-4 h-4" /> Kembali ke Web Utama
+          </NuxtLink>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
