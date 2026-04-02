@@ -1,0 +1,2 @@
+C:\Users\DELL\proyek-js\pesantren\app\pages\admin\artikel\[slug].vue
+C:\Users\DELL\proyek-js\pesantren\app\pages\artikel\[slug].vue

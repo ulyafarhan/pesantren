@@ -23,7 +23,7 @@ const articles = [
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Kelola Artikel</h1>
-        <p class="text-gray-500 text-sm mt-1">Manajemen konten publikasi, berita, dan blog pesantren.</p>
+        <p class="text-foreground/70 text-sm mt-1">Manajemen konten publikasi, berita, dan blog pesantren.</p>
       </div>
       <UButton color="gray" variant="solid" icon="i-heroicons-plus" to="/admin/articles/create">
         Tulis Artikel Baru

@@ -5,17 +5,21 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 4 },
   
   modules: [
-    '@nuxtjs/supabase',
-    '@nuxt/ui',
     '@vueuse/nuxt'
   ],
-  
-  supabase: {
-    redirectOptions: {
-      login: '/admin/login',
-      callback: '/confirm',
-      exclude: ['/', '/artikel/*', '/galeri', '/sejarah', '/fasilitas'], 
-    }
+
+  components: {
+    dirs: [
+      {
+        path: '~/components/ui',
+        extensions: ['.vue'],
+        pathPrefix: false,
+        prefix: 'Ui'
+      },
+      {
+        path: '~/components'
+      }
+    ]
   },
 
   css: ['~/assets/css/main.css'],
@@ -34,11 +38,19 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true },
-    '/sejarah': { prerender: true },
+    '/': { prerender: true, swr: 3600 },
+    '/sejarah': { prerender: true, swr: 86400 },
+    '/fasilitas': { prerender: true, swr: 86400 },
+    '/brosur': { prerender: true, swr: 86400 },
+    '/artikel': { swr: 3600 },
     '/artikel/**': { swr: 3600 },
     '/galeri': { swr: 3600 },
     '/admin/**': { ssr: false },
+    '/api/articles/**': { swr: 300, cors: true }, // Cache articles for 5 mins
+    '/api/galleries/**': { swr: 300, cors: true }, 
+    '/api/facilities/**': { swr: 86400, cors: true }, // Cache facilities for 1 day
+    '/api/class-programs/**': { swr: 86400, cors: true }, 
+    '/api/testimonials/**': { swr: 3600, cors: true },
     '/api/**': { cors: true }
   }
 })

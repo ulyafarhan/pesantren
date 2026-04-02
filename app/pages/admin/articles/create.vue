@@ -21,7 +21,7 @@ const handleSave = () => {
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Tulis Artikel Baru</h1>
-        <p class="text-gray-500 text-sm mt-1">Buat konten publikasi baru untuk ditampilkan di halaman web.</p>
+        <p class="text-foreground/70 text-sm mt-1">Buat konten publikasi baru untuk ditampilkan di halaman web.</p>
       </div>
       <div class="flex gap-3">
         <UButton color="white" variant="solid" to="/admin/articles">Batal</UButton>
@@ -60,8 +60,8 @@ const handleSave = () => {
 
           <UFormGroup label="Gambar Sampul">
             <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer">
-              <UIcon name="i-heroicons-photo" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
-              <span class="text-sm text-gray-500">Klik untuk mengunggah gambar</span>
+              <UIcon name="i-heroicons-photo" class="w-8 h-8 mx-auto text-foreground/60 mb-2" />
+              <span class="text-sm text-foreground/70">Klik untuk mengunggah gambar</span>
             </div>
           </UFormGroup>
         </div>

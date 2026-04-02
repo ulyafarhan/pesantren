@@ -21,7 +21,7 @@ const handleLogin = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-lg border border-gray-100">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border border-gray-100">
       <div class="text-center">
         <h1 class="text-3xl font-bold text-green-700 mb-2">PesantrenKu</h1>
         <h2 class="text-2xl font-extrabold text-gray-900">
@@ -50,7 +50,7 @@ const handleLogin = async () => {
         </div>
 
         <div class="text-center mt-6">
-          <NuxtLink to="/" class="text-sm font-medium text-gray-500 hover:text-green-600 transition-colors inline-flex items-center gap-1">
+          <NuxtLink to="/" class="text-sm font-medium text-foreground/70 hover:text-green-600 transition-colors inline-flex items-center gap-1">
             <UIcon name="i-heroicons-arrow-left" class="w-4 h-4" /> Kembali ke Web Utama
           </NuxtLink>
         </div>
