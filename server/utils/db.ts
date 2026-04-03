@@ -3,7 +3,7 @@ import { join } from 'path'
 import { randomUUID } from 'crypto'
 import { hashSync } from 'bcryptjs'
 
-const DB_PATH = join(process.cwd(), 'data.db')
+const DB_PATH = join(process.cwd(), 'db', 'data.db')
 
 let _db: Database.Database | null = null
 

@@ -30,10 +30,20 @@ export default defineNuxtConfig({
       include: [
         '@vue/devtools-core',
         '@vue/devtools-kit',
-      ]
+      ],
+      exclude: ['better-sqlite3']
     },
     server: {
-      watch: { usePolling: true }
+      watch: { 
+        usePolling: true,
+        ignored: ['**/db/**']
+      }
+    }
+  },
+
+  nitro: {
+    externals: {
+      inline: ['better-sqlite3']
     }
   },
 
