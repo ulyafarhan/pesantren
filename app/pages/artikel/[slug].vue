@@ -22,33 +22,35 @@ useHead({
 </script>
 
 <template>
-  <div class="min-h-screen bg-background pb-32">
-    <!-- Article Hero Section -->
-    <header class="relative h-[60vh] md:h-[70vh] flex items-end pb-16 overflow-hidden">
+  <div class="min-h-screen bg-background text-foreground pb-32">
+    <div class="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+
+    <header class="relative h-[60vh] md:h-[70vh] flex items-end pb-16 overflow-hidden border-b border-border z-10">
       <div v-if="article.coverImage" class="absolute inset-0 bg-muted">
-        <img :src="article.coverImage" :alt="article.title" class="w-full h-full object-cover transition-transform duration-1000 scale-105" />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        <img :src="article.coverImage" :alt="article.title" class="w-full h-full object-cover grayscale opacity-60" />
+        <div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       </div>
-      <div v-else class="absolute inset-0 bg-primary/10"></div>
+      <div v-else class="absolute inset-0 bg-background"></div>
 
       <div class="container mx-auto px-6 relative z-10">
-        <div class="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <NuxtLink to="/artikel" class="inline-flex items-center gap-2 text-white/60 hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px]">
-            <ArrowLeft class="size-4" /> Kembali ke Artikel
+        <div class="max-w-4xl space-y-8">
+          <NuxtLink to="/artikel" class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px] bg-background border border-border px-4 py-2">
+            <ArrowLeft class="w-4 h-4" /> Indeks Artikel
           </NuxtLink>
           <div class="space-y-4">
-             <div class="flex items-center gap-4 text-white/50 text-[10px] uppercase font-black tracking-[0.2em]">
-                <span class="bg-primary px-3 py-1 text-primary-foreground rounded-xl border-0">Update Terbaru</span>
+             <div class="flex items-center gap-4 text-primary text-[10px] uppercase font-black tracking-[0.2em]">
+                <span class="bg-primary/10 border border-primary/20 px-3 py-1 text-primary rounded-xl">Dokumen Publikasi</span>
                 <span>{{ new Date(article.publishedAt || article.createdAt).toLocaleDateString('id-ID') }}</span>
              </div>
-             <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter italic leading-tight">{{ article.title }}</h1>
+             <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-foreground tracking-tighter leading-[0.95]">{{ article.title }}</h1>
           </div>
-          <div class="flex items-center gap-6">
-             <div class="flex items-center gap-3">
-                <div class="size-10 rounded-xl bg-white/10 flex items-center justify-center text-white text-xs font-black border border-white/10">PK</div>
+          
+          <div class="flex items-center gap-6 pt-4 border-t border-border/50 max-w-lg">
+             <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-background border border-border flex items-center justify-center text-foreground text-xs font-black">PK</div>
                 <div class="flex flex-col">
-                   <span class="text-xs font-black text-white uppercase tracking-widest">Redaksi PesantrenKu</span>
-                   <span class="text-[9px] font-bold text-white/40 uppercase">5 Menit Baca</span>
+                   <span class="text-[10px] font-black text-foreground uppercase tracking-widest">Divisi Publikasi Resmi</span>
+                   <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Est. 5 Menit Pembacaan</span>
                 </div>
              </div>
           </div>
@@ -56,88 +58,88 @@ useHead({
       </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="container mx-auto px-6 mt-16">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <!-- Article Body -->
-        <article class="lg:col-span-8 space-y-12">
-          <div class="p-10 md:p-16 bg-background rounded-xl border border-border/5 shadow-2xl shadow-black/5 ring-1 ring-border/5">
+    <main class="container mx-auto px-6 mt-16 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        
+        <article class="lg:col-span-8 flex flex-col space-y-12">
+          <div class="p-10 md:p-16 bg-card border border-border rounded-xl shadow-none">
             <div 
-              class="prose prose-xl prose-slate max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-headings:italic prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-medium prose-p:italic prose-h2:text-3xl prose-h2:mb-8 prose-h2:mt-12 prose-a:text-primary hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-2xl prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-r-xl prose-blockquote:italic"
+              class="prose prose-lg md:prose-xl prose-slate max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-p:text-foreground/80 prose-p:leading-loose prose-p:font-medium prose-h2:text-3xl prose-h2:mb-6 prose-h2:mt-12 prose-a:text-primary hover:prose-a:underline prose-img:rounded-xl prose-img:border prose-img:border-border prose-img:grayscale hover:prose-img:grayscale-0 prose-img:transition-all prose-img:duration-700 prose-blockquote:border-l-[4px] prose-blockquote:border-primary prose-blockquote:bg-muted/30 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-xl prose-blockquote:not-italic prose-blockquote:text-foreground prose-blockquote:font-serif"
               v-html="article.content"
             ></div>
 
-            <!-- Interaction Bar -->
-            <div class="mt-20 pt-10 border-t border-border/10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="mt-24 pt-10 border-t border-border flex flex-col md:flex-row items-center justify-between gap-8">
                <div class="flex items-center gap-4">
-                  <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Bagikan Artikel</span>
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Bagikan Tautan</span>
                   <div class="flex gap-2">
-                     <UiButton variant="ghost" size="icon" class="rounded-xl hover:bg-primary hover:text-white transition-all size-9 border border-border/10"><Facebook class="size-4" /></UiButton>
-                     <UiButton variant="ghost" size="icon" class="rounded-xl hover:bg-primary hover:text-white transition-all size-9 border border-border/10"><Twitter class="size-4" /></UiButton>
-                     <UiButton variant="ghost" size="icon" class="rounded-xl hover:bg-primary hover:text-white transition-all size-9 border border-border/10"><Share2 class="size-4" /></UiButton>
+                     <UiButton variant="outline" size="icon" class="rounded-xl border-border hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors w-10 h-10"><Facebook class="w-4 h-4" /></UiButton>
+                     <UiButton variant="outline" size="icon" class="rounded-xl border-border hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors w-10 h-10"><Twitter class="w-4 h-4" /></UiButton>
+                     <UiButton variant="outline" size="icon" class="rounded-xl border-border hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors w-10 h-10"><Share2 class="w-4 h-4" /></UiButton>
                   </div>
                </div>
                <div class="flex gap-2">
-                  <UiBadge variant="secondary" class="rounded-lg px-4 py-1.5 font-bold text-[9px] uppercase tracking-widest bg-muted border-0">Kajian Ilmu</UiBadge>
-                  <UiBadge variant="secondary" class="rounded-lg px-4 py-1.5 font-bold text-[9px] uppercase tracking-widest bg-muted border-0">Info Santri</UiBadge>
+                  <span class="border border-border bg-background px-3 py-1.5 font-bold text-[9px] uppercase tracking-[0.2em] cursor-default">Kajian Ilmu</span>
+                  <span class="border border-border bg-background px-3 py-1.5 font-bold text-[9px] uppercase tracking-[0.2em] cursor-default">Info Santri</span>
                </div>
             </div>
           </div>
 
-          <!-- Author Box -->
-          <div class="p-10 bg-muted/30 rounded-xl border border-border/10 flex flex-col md:flex-row items-center gap-8 group">
-             <div class="size-24 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-3xl shadow-lg shadow-primary/20 shrink-0">PK</div>
-             <div class="flex-1 text-center md:text-left space-y-3">
-                <h3 class="text-xl font-black italic tracking-tight">Redaksi Media PesantrenKu</h3>
-                <p class="text-muted-foreground text-sm font-medium leading-relaxed italic">Tim publikasi resmi PesantrenKu yang menyajikan informasi aktual, inspiratif, dan edukatif seputar dunia pendidikan Islam.</p>
-                <div class="flex justify-center md:justify-start gap-4 pt-2">
-                   <NuxtLink class="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Ikuti Kami</NuxtLink>
-                   <NuxtLink class="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Kontak Redaksi</NuxtLink>
+          <div class="p-10 bg-foreground text-background border border-border rounded-xl flex flex-col md:flex-row items-start gap-8 relative overflow-hidden">
+             <div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/20 blur-3xl opacity-30"></div>
+             
+             <div class="w-20 h-20 bg-background border border-background/20 flex items-center justify-center text-foreground font-black text-3xl shrink-0">PK</div>
+             <div class="flex-1 space-y-4 relative z-10">
+                <h3 class="text-xl font-black tracking-tight text-background">Pusat Redaksi PesantrenKu</h3>
+                <p class="text-background/60 text-sm font-medium leading-relaxed font-serif italic max-w-lg">Tim publikasi resmi pesantren yang menyajikan informasi struktural, inspiratif, dan edukatif dengan standar literasi yang tinggi.</p>
+                <div class="flex gap-6 pt-2">
+                   <NuxtLink class="text-[9px] font-bold uppercase tracking-widest text-primary hover:text-primary-foreground transition-colors">Jaringan Eksternal</NuxtLink>
+                   <NuxtLink class="text-[9px] font-bold uppercase tracking-widest text-primary hover:text-primary-foreground transition-colors">Surat Elektronik Redaksi</NuxtLink>
                 </div>
              </div>
           </div>
         </article>
 
-        <!-- Sidebar -->
         <aside class="lg:col-span-4 space-y-12">
-          <UiCard class="p-8 border-0 shadow-2xl shadow-black/5 ring-1 ring-border/5 rounded-xl bg-background space-y-8">
-            <div class="flex items-center gap-3 text-primary">
-              <Sparkles class="size-5" />
-              <h3 class="text-lg font-black tracking-tight italic">Baca Juga</h3>
+          <div class="p-8 border border-border bg-card rounded-xl space-y-8">
+            <div class="flex items-center gap-3 border-b border-border pb-4">
+              <Sparkles class="w-5 h-5 text-primary" />
+              <h3 class="text-xl font-black tracking-tight">Kajian Terkait</h3>
             </div>
-            <div class="space-y-8">
+            
+            <div class="space-y-6">
               <NuxtLink 
                 v-for="recent in recentArticles" 
                 :key="recent.id" 
                 :to="`/artikel/${recent.slug}`"
-                class="flex gap-4 group/item"
+                class="flex gap-4 group/item items-start"
               >
-                <div class="size-20 shrink-0 rounded-xl overflow-hidden bg-muted">
-                   <img v-if="recent.coverImage" :src="recent.coverImage" class="w-full h-full object-cover transition-transform" />
+                <div class="w-16 h-16 shrink-0 overflow-hidden bg-muted border border-border group-hover/item:border-primary transition-colors">
+                   <img v-if="recent.coverImage" :src="recent.coverImage" class="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all duration-500" />
+                   <div v-else class="w-full h-full flex items-center justify-center bg-background"><Bookmark class="w-5 h-5 text-muted-foreground/30" /></div>
                 </div>
-                <div class="space-y-1">
+                <div class="space-y-2 flex-1">
                   <h4 class="text-sm font-bold leading-tight group-hover/item:text-primary transition-colors line-clamp-2 text-foreground">{{ recent.title }}</h4>
-                  <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{{ new Date(recent.publishedAt).toLocaleDateString('id-ID') }}</span>
+                  <span class="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em]">{{ new Date(recent.publishedAt || recent.createdAt).toLocaleDateString('id-ID') }}</span>
                 </div>
               </NuxtLink>
             </div>
-          </UiCard>
+          </div>
 
-          <!-- Newsletter Stick -->
-          <div class="sticky top-12 p-10 bg-foreground text-background rounded-xl overflow-hidden relative shadow-2xl">
-            <div class="absolute -top-12 -right-12 size-48 bg-primary/20 rounded-xl blur-3xl"></div>
-            <div class="relative z-10 space-y-6">
-              <div class="size-14 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-                <Mail class="size-6 text-primary" />
+          <div class="sticky top-24 p-10 bg-card border border-border rounded-xl overflow-hidden relative shadow-none group">
+            <div class="absolute top-6 left-6 w-12 h-[2px] bg-primary"></div>
+            
+            <div class="relative z-10 space-y-6 pt-6">
+              <div class="w-12 h-12 bg-background border border-border flex items-center justify-center">
+                <Mail class="w-5 h-5 text-primary" />
               </div>
-              <div class="space-y-2">
-                <h3 class="text-2xl font-black tracking-tight italic">E-Buletin Mingguan</h3>
-                <p class="text-primary-foreground/60 text-xs font-medium leading-relaxed">Jangan lewatkan update kajian dan kegiatan pesantren setiap jumat pagi.</p>
+              <div class="space-y-2 text-left">
+                <h3 class="text-2xl font-black tracking-tight text-foreground">Sirkulasi Buletin</h3>
+                <p class="text-muted-foreground text-xs font-medium leading-relaxed italic font-serif">Penerimaan publikasi berkala langsung ke kotak masuk surel Anda.</p>
               </div>
-              <div class="space-y-3 pt-4">
-                <UiInput placeholder="Alamat email..." class="bg-white/5 border-white/10 text-white rounded-xl h-12 text-sm focus:ring-primary placeholder:text-white/20" />
-                <UiButton class="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
-                  <Send class="size-4 mr-2" /> Langganan
+              <div class="space-y-3 pt-2">
+                <UiInput placeholder="Alamat surel Anda..." class="bg-background border-border text-foreground rounded-xl h-12 text-sm focus:border-primary focus:ring-0 placeholder:text-muted-foreground/50" />
+                <UiButton class="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-widest text-[10px] rounded-xl shadow-none active:scale-95 transition-transform border border-transparent">
+                  <Send class="w-4 h-4 mr-2" /> Pendaftaran Distribusi
                 </UiButton>
               </div>
             </div>

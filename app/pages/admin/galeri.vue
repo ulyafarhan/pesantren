@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Pencil, Trash2, Image as ImageIcon, X, Loader2, Camera, Search, MoreVertical, Maximize2 } from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Image as ImageIcon, X, Loader2, Camera, Search, Maximize2 } from 'lucide-vue-next';
 
 definePageMeta({ layout: 'admin', middleware: 'admin-only' });
 useHead({ title: 'Kelola Galeri - Admin PesantrenKu' });
@@ -45,7 +45,7 @@ const handleSave = async () => {
 };
 
 const handleDelete = async (id: string) => { 
-  if (!confirm('Yakin ingin menghapus foto ini dari galeri?')) return;
+  if (!confirm('Perhatian: Data visual akan dihapus dari sistem. Lanjutkan?')) return;
   await $fetch(`/api/galleries/${id}`, { method: 'DELETE' });
   refresh();
 };
@@ -65,123 +65,105 @@ const uploadImage = async (e: Event) => {
 </script>
 
 <template>
-  <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-      <div class="space-y-1 text-left">
-        <h1 class="text-3xl font-extrabold tracking-tight text-foreground">Kelola Galeri</h1>
-        <p class="text-muted-foreground font-medium">Dokumentasi momen dan kegiatan berharga di pesantren.</p>
+  <div class="space-y-8 animate-in fade-in duration-500 relative z-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-border pb-6">
+      <div class="space-y-1">
+        <h1 class="text-3xl font-black tracking-tighter text-foreground uppercase">Arsip Visual</h1>
+        <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Manajemen Media Fotografi</p>
       </div>
-      <UiButton @click="openCreate" class="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
-        <Plus class="size-5 mr-2" /> Tambah Foto Baru
+      <UiButton @click="openCreate" class="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 px-6 rounded-xl shadow-none border border-primary transition-all active:scale-95">
+        <Plus class="size-4 mr-2" /> UPLOAD MEDIA BARU
       </UiButton>
     </div>
 
-    <!-- Search & Filter Bar -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-background p-4 rounded-xl border border-border/40 shadow-sm text-left">
-      <div class="relative w-full md:w-96 text-left">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <UiInput placeholder="Cari judul foto..." class="pl-10 h-10 bg-muted/20 border-transparent focus-visible:ring-primary rounded-xl" />
+    <div class="bg-card border border-border rounded-xl p-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div class="relative w-full md:w-96 flex">
+        <div class="w-12 h-10 bg-muted border border-border border-r-0 flex items-center justify-center shrink-0">
+           <Search class="w-4 h-4 text-muted-foreground" /> 
+        </div>
+        <UiInput placeholder="Cari meta-data foto..." class="h-10 bg-background border border-border focus-visible:ring-primary rounded-xl flex-1 font-mono text-xs" />
       </div>
-      <div class="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none bg-muted/30 px-3 py-2 rounded-lg">
-        <ImageIcon class="size-3 text-primary" /> Total: {{ galleries?.length || 0 }} Media
+      <div class="flex items-center gap-2 text-[9px] font-bold text-foreground uppercase tracking-[0.3em] leading-none bg-background border border-border px-4 py-2.5">
+        <span class="w-2 h-2 bg-primary"></span> Terindeks: {{ galleries?.length || 0 }} File
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div v-if="!galleries || galleries.length === 0" class="text-center py-32 bg-background rounded-xl border border-dashed border-muted-foreground/20 space-y-4 shadow-inner">
-      <div class="size-20 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4 opacity-40">
-        <ImageIcon class="size-10" />
+    <div v-if="!galleries || galleries.length === 0" class="text-center py-32 bg-background border border-border">
+      <div class="w-20 h-20 bg-muted border border-border flex items-center justify-center mx-auto mb-6">
+        <ImageIcon class="size-10 text-muted-foreground/40" />
       </div>
-      <h3 class="text-lg font-bold">Galeri Kosong</h3>
-      <p class="text-muted-foreground max-w-xs mx-auto">Upload foto kegiatan pesantren untuk ditampilkan di halaman publik.</p>
-      <UiButton variant="outline" @click="openCreate" class="mt-4 rounded-xl border-dashed"> Upload Foto Pertama </UiButton>
+      <h3 class="text-xl font-black tracking-tight uppercase">Direktori Kosong</h3>
+      <p class="text-muted-foreground text-sm max-w-xs mx-auto mt-2 italic font-serif">Sistem tidak menemukan berkas gambar satupun.</p>
     </div>
 
-    <!-- Gallery Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 text-left">
-      <div v-for="g in galleries" :key="g.id" class="group bg-background rounded-xl border border-border/40 shadow-sm overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-primary/5">
-        <div class="aspect-[4/3] overflow-hidden bg-muted relative">
-          <img :src="g.imageUrl" :alt="g.title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-            <UiButton variant="secondary" size="icon" class="rounded-xl size-10 bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-primary border-0">
-              <Maximize2 class="size-4" />
-            </UiButton>
-          </div>
-          <div class="absolute top-2 right-2 flex gap-1">
-             <UiBadge variant="secondary" class="bg-black/40 backdrop-blur-md text-white border-0 rounded-lg py-0 px-2 font-bold text-[8px] uppercase tracking-tighter">PHOTO</UiBadge>
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div v-for="g in galleries" :key="g.id" class="group bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary">
+        <div class="aspect-square overflow-hidden bg-muted border-b border-border relative">
+          <img :src="g.imageUrl" :alt="g.title" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+          <div class="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
+             <UiButton variant="outline" size="icon" class="rounded-xl border-border text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary size-10" @click="openEdit(g)">
+                <Pencil class="size-4" />
+             </UiButton>
+             <UiButton variant="outline" size="icon" class="rounded-xl border-border text-foreground hover:bg-error hover:text-error-foreground hover:border-error size-10" @click="handleDelete(g.id)">
+                <Trash2 class="size-4" />
+             </UiButton>
           </div>
         </div>
-        <div class="p-5 space-y-3">
-          <div class="space-y-1">
-            <h3 class="font-bold text-foreground text-sm line-clamp-1 group-hover:text-primary transition-colors italic tracking-tight">{{ g.title }}</h3>
-            <p v-if="g.description" class="text-[11px] text-muted-foreground font-medium line-clamp-2 leading-relaxed italic">{{ g.description }}</p>
-            <p v-else class="text-[11px] text-muted-foreground/40 italic">Tidak ada deskripsi</p>
-          </div>
-          <div class="flex items-center justify-between pt-4 border-t border-border/10">
-            <div class="flex gap-1.5">
-              <UiButton variant="ghost" size="icon" class="size-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all" @click="openEdit(g)">
-                <Pencil class="size-3.5" />
-              </UiButton>
-              <UiButton variant="ghost" size="icon" class="size-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all" @click="handleDelete(g.id)">
-                <Trash2 class="size-3.5" />
-              </UiButton>
-            </div>
-            <UiButton variant="ghost" size="icon" class="size-8 rounded-lg">
-              <MoreVertical class="size-3.5 opacity-40" />
-            </UiButton>
-          </div>
+        <div class="p-4 space-y-2 bg-background">
+          <h3 class="font-bold text-foreground text-sm line-clamp-1 uppercase tracking-tight">{{ g.title }}</h3>
+          <p v-if="g.description" class="text-[10px] text-muted-foreground font-medium line-clamp-2 leading-relaxed italic font-serif">{{ g.description }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Modal Dialog -->
     <UiDialog v-model:open="showModal">
-      <UiDialogContent class="sm:max-w-lg rounded-xl border-0 shadow-2xl p-0 overflow-hidden bg-background">
-        <UiDialogHeader class="p-6 bg-muted/20 border-b border-border/10 text-left">
-          <UiDialogTitle class="text-xl font-extrabold tracking-tight flex items-center gap-2">
-            <Camera class="size-5 text-primary" /> {{ editId ? 'Perbarui Foto' : 'Tambah Foto Baru' }}
-          </UiDialogTitle>
-          <p class="text-xs font-medium text-muted-foreground">Silakan isi detail foto untuk dokumentasi pesantren.</p>
-        </UiDialogHeader>
-        <div class="p-8 space-y-6 text-left">
+      <UiDialogContent class="sm:max-w-lg rounded-xl border border-border shadow-none p-0 overflow-hidden bg-background">
+        <div class="p-6 bg-muted/10 border-b border-border text-left">
+          <h2 class="text-lg font-black uppercase tracking-widest flex items-center gap-3">
+            <Camera class="size-5 text-primary" /> {{ editId ? 'Modifikasi Meta-data' : 'Upload Berkas Baru' }}
+          </h2>
+        </div>
+        
+        <div class="p-6 space-y-6 text-left bg-background">
           <div class="space-y-4">
-            <div class="space-y-2 text-left">
-              <UiLabel class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Judul Foto</UiLabel>
-              <UiInput v-model="form.title" placeholder="Misal: Kegiatan Sholat Berjamaah" class="rounded-xl h-11 focus-visible:ring-primary border-muted/60" />
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Judul Media</label>
+              <UiInput v-model="form.title" placeholder="JUDUL..." class="rounded-xl h-11 border-border focus-visible:ring-primary uppercase tracking-tight font-bold" />
             </div>
-            <div class="space-y-2 text-left">
-              <UiLabel class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Deskripsi Singkat</UiLabel>
-              <UiTextarea v-model="form.description" placeholder="Berikan sedikit konteks tentang foto ini..." class="rounded-xl min-h-[80px] focus-visible:ring-primary border-muted/60 resize-none italic" />
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Keterangan Teknis</label>
+              <UiTextarea v-model="form.description" placeholder="Deskripsi..." class="rounded-xl min-h-[80px] border-border focus-visible:ring-primary resize-none italic font-serif" />
             </div>
-            <div class="space-y-3 pt-2 text-left">
-              <UiLabel class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Media Visual</UiLabel>
-              <div v-if="form.imageUrl" class="relative group rounded-xl overflow-hidden border border-border/40 shadow-inner bg-muted/10 aspect-video">
+            
+            <div class="space-y-2 pt-2">
+              <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Berkas Visual</label>
+              <div v-if="form.imageUrl" class="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-video">
                 <img :src="form.imageUrl" class="w-full h-full object-cover" />
-                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <UiButton size="sm" variant="destructive" @click="form.imageUrl = ''" class="rounded-xl h-9 font-bold">
-                    <X class="size-4 mr-1.5" /> Hapus & Ganti
+                <div class="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <UiButton size="sm" variant="outline" @click="form.imageUrl = ''" class="rounded-xl border-error text-error hover:bg-error hover:text-error-foreground h-10 font-bold uppercase tracking-[0.2em] text-[9px]">
+                    <X class="size-3.5 mr-2" /> Buang Berkas
                   </UiButton>
                 </div>
               </div>
-              <label v-else class="border-2 border-dashed border-muted hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center py-10 px-6 rounded-xl text-center group">
-                <div class="size-12 bg-muted rounded-xl flex items-center justify-center mb-3 group-hover:scale-95 transition-all">
-                  <Plus class="size-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              <label v-else class="border-2 border-dashed border-border hover:border-primary/50 bg-muted/10 transition-all cursor-pointer flex flex-col items-center justify-center py-10 px-6 rounded-xl text-center group">
+                <div class="w-12 h-12 bg-background border border-border flex items-center justify-center mb-3 group-hover:border-primary transition-colors">
+                  <Plus class="size-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
-                <h4 class="font-bold text-xs uppercase tracking-tight">Pilih File Gambar</h4>
-                <p class="text-[9px] text-muted-foreground mt-1 uppercase tracking-widest font-semibold font-mono">JPG, PNG, WEBP</p>
+                <h4 class="font-black text-[10px] uppercase tracking-widest text-foreground">Lokasikan Berkas (Browse)</h4>
+                <p class="text-[8px] text-muted-foreground mt-1 uppercase tracking-widest font-mono">Max 2MB</p>
                 <input type="file" accept="image/*" class="hidden" @change="uploadImage" />
               </label>
             </div>
           </div>
         </div>
-        <UiDialogFooter class="p-6 bg-muted/5 border-t border-border/10 flex items-center gap-3">
-          <UiButton variant="outline" @click="showModal = false" class="rounded-xl h-11 px-6 font-bold flex-1 active:scale-95 transition-all">Batal</UiButton>
-          <UiButton @click="handleSave" :disabled="loading || !form.title || !form.imageUrl" class="rounded-xl h-11 px-8 font-bold bg-primary hover:bg-primary/90 text-primary-foreground flex-1 shadow-lg shadow-primary/10 active:scale-95 transition-all">
+        
+        <div class="p-6 bg-muted/10 border-t border-border flex items-center gap-3">
+          <UiButton variant="outline" @click="showModal = false" class="rounded-xl h-11 px-6 font-bold uppercase tracking-widest text-[9px] flex-1 border-border">Batalkan</UiButton>
+          <UiButton @click="handleSave" :disabled="loading || !form.title || !form.imageUrl" class="rounded-xl h-11 px-8 font-bold bg-primary hover:bg-primary/90 text-primary-foreground uppercase tracking-widest text-[9px] flex-1">
             <Loader2 v-if="loading" class="size-4 mr-2 animate-spin" />
-            <Save v-else class="size-4 mr-2" /> Simpan Data
+            <Save v-else class="size-4 mr-2" /> Eksekusi Simpan
           </UiButton>
-        </UiDialogFooter>
+        </div>
       </UiDialogContent>
     </UiDialog>
   </div>

@@ -1,25 +1,22 @@
 <script setup lang="ts">
-import type { PrimitiveProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import type { BadgeVariants } from "."
-import { reactiveOmit } from "@vueuse/core"
-import { Primitive } from "reka-ui"
-import { cn } from "@/lib/utils"
-import { badgeVariants } from "."
+import { type HTMLAttributes } from 'vue'
+import { Primitive, type PrimitiveProps } from 'reka-ui'
+import { type BadgeVariants, badgeVariants } from '.'
+import { cn } from '~/lib/utils'
 
-const props = defineProps<PrimitiveProps & {
-  variant?: BadgeVariants["variant"]
-  class?: HTMLAttributes["class"]
-}>()
+// Mendefinisikan interface secara eksplisit agar Vue dapat membacanya saat render
+interface Props extends /* @vue-ignore */ PrimitiveProps {
+  variant?: BadgeVariants['variant']
+  class?: HTMLAttributes['class']
+}
 
-const delegatedProps = reactiveOmit(props, "class")
+const props = defineProps<Props>()
 </script>
 
 <template>
   <Primitive
-    data-slot="badge"
-    :class="cn(badgeVariants({ variant }), props.class)"
-    v-bind="delegatedProps"
+    v-bind="props"
+    :class="cn(badgeVariants({ variant }), props.class, 'rounded-xl uppercase tracking-widest font-black text-[9px] px-2 py-0.5 border border-primary/20')"
   >
     <slot />
   </Primitive>

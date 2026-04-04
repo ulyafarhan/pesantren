@@ -2,8 +2,9 @@
 import type { DialogRootEmits, DialogRootProps } from "reka-ui"
 import { DialogRoot, useForwardPropsEmits } from "reka-ui"
 
-const props = defineProps<DialogRootProps>()
-const emits = defineEmits<DialogRootEmits>()
+// Menambahkan @vue-ignore untuk membypass error resolusi tipe pada compiler Vue
+const props = defineProps< /* @vue-ignore */ DialogRootProps>()
+const emits = defineEmits< /* @vue-ignore */ DialogRootEmits>()
 
 const forwarded = useForwardPropsEmits(props, emits)
 </script>

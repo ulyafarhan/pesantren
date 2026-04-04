@@ -1,52 +1,65 @@
-import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-07-11',
-  future: { compatibilityVersion: 4 },
+  compatibilityDate: '2024-11-01',
   
-  modules: [
-    '@vueuse/nuxt'
-  ],
-
+  future: { 
+    compatibilityVersion: 4 
+  },
+  
+  // BYPASS DARURAT: Matikan SSR agar Vite tidak mengeksekusi backend di memori saat development
+  ssr: false, 
+  
+  devtools: { enabled: false },
+  
+  modules: ['@nuxtjs/tailwindcss'],
+  
   components: {
     dirs: [
-      {
-        path: '~/components/ui',
-        extensions: ['.vue'],
-        pathPrefix: false,
-        prefix: 'Ui'
+      { 
+        path: '~/components/ui', 
+        prefix: 'Ui',
+        extensions: ['.vue'] 
       },
       {
-        path: '~/components'
+        path: '~/components',
+        ignore: ['ui/**']
       }
     ]
   },
-
-  css: ['~/assets/css/main.css'],
+  
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+    configPath: 'tailwind.config.js',
+    exposeConfig: false,
+    viewer: false,
+  },
   
   vite: {
-    plugins: [tailwindcss()],
     optimizeDeps: {
-      include: [
-        '@vue/devtools-core',
-        '@vue/devtools-kit',
-      ],
       exclude: ['better-sqlite3']
     },
+    // PROTEKSI TAMBAHAN: Memaksa mesin SSR Vite mengabaikan library C++
+    ssr: {
+      external: ['better-sqlite3']
+    },
     server: {
-      watch: { 
+      watch: {
         usePolling: true,
-        ignored: ['**/db/**']
+        ignored: ['**/db/data.db*']
       }
     }
   },
 
   nitro: {
     externals: {
-      inline: ['better-sqlite3']
+      external: ['better-sqlite3']
     }
   },
-
+  
   routeRules: {
     '/': { prerender: true, swr: 3600 },
     '/sejarah': { prerender: true, swr: 86400 },
@@ -55,12 +68,12 @@ export default defineNuxtConfig({
     '/artikel': { swr: 3600 },
     '/artikel/**': { swr: 3600 },
     '/galeri': { swr: 3600 },
-    '/admin/**': { ssr: false },
-    '/api/articles/**': { swr: 300, cors: true }, // Cache articles for 5 mins
+    '/admin/**': { ssr: false }, 
+    '/api/articles/**': { swr: 300, cors: true }, 
     '/api/galleries/**': { swr: 300, cors: true }, 
-    '/api/facilities/**': { swr: 86400, cors: true }, // Cache facilities for 1 day
+    '/api/facilities/**': { swr: 86400, cors: true }, 
     '/api/class-programs/**': { swr: 86400, cors: true }, 
     '/api/testimonials/**': { swr: 3600, cors: true },
     '/api/**': { cors: true }
   }
-})
+});

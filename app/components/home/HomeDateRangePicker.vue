@@ -113,7 +113,7 @@ const selectRange = (range: { days?: number, months?: number, years?: number }) 
             :label="range.label"
             color="neutral"
             variant="ghost"
-            class="rounded-none px-4"
+            class="rounded-xl px-4"
             :class="[isRangeSelected(range) ? 'bg-elevated' : 'hover:bg-elevated/50']"
             truncate
             @click="selectRange(range)"

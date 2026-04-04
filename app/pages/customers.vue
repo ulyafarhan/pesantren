@@ -14,57 +14,26 @@ const UCheckbox = resolveComponent('UCheckbox')
 const toast = useToast()
 const table = useTemplateRef('table')
 
-const columnFilters = ref([{
-  id: 'email',
-  value: ''
-}])
+const columnFilters = ref([{ id: 'email', value: '' }])
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<User[]>('/api/customers', {
-  lazy: true
-})
+const { data, status } = await useFetch<User[]>('/api/customers', { lazy: true })
 
 function getRowItems(row: Row<User>) {
   return [
-    {
-      type: 'label',
-      label: 'Actions'
-    },
-    {
-      label: 'Copy customer ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
+    { type: 'label', label: 'Tindakan' },
+    { label: 'Salin ID Pengguna', icon: 'i-lucide-copy', onSelect() {
         navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'Customer ID copied to clipboard'
-        })
+        toast.add({ title: 'Disalin', description: 'ID Pengguna disalin ke clipboard' })
       }
     },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'View customer details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'View customer payments',
-      icon: 'i-lucide-wallet'
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'Delete customer',
-      icon: 'i-lucide-trash',
-      color: 'error',
-      onSelect() {
-        toast.add({
-          title: 'Customer deleted',
-          description: 'The customer has been deleted.'
-        })
+    { type: 'separator' },
+    { label: 'Detail Pengguna', icon: 'i-lucide-list' },
+    { label: 'Riwayat Transaksi', icon: 'i-lucide-wallet' },
+    { type: 'separator' },
+    { label: 'Hapus Data', icon: 'i-lucide-trash', color: 'error', onSelect() {
+        toast.add({ title: 'Dihapus', description: 'Data pengguna telah dihapus secara permanen.' })
       }
     }
   ]
@@ -73,175 +42,111 @@ function getRowItems(row: Row<User>) {
 const columns: TableColumn<User>[] = [
   {
     id: 'select',
-    header: ({ table }) =>
-      h(UCheckbox, {
-        'modelValue': table.getIsSomePageRowsSelected()
-          ? 'indeterminate'
-          : table.getIsAllPageRowsSelected(),
-        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
-          table.toggleAllPageRowsSelected(!!value),
-        'ariaLabel': 'Select all'
-      }),
-    cell: ({ row }) =>
-      h(UCheckbox, {
-        'modelValue': row.getIsSelected(),
-        'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
-        'ariaLabel': 'Select row'
-      })
+    header: ({ table }) => h(UCheckbox, {
+      'modelValue': table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
+      'onUpdate:modelValue': (value: boolean | 'indeterminate') => table.toggleAllPageRowsSelected(!!value),
+      'ariaLabel': 'Pilih Semua',
+      'class': 'rounded-xl border-border'
+    }),
+    cell: ({ row }) => h(UCheckbox, {
+      'modelValue': row.getIsSelected(),
+      'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
+      'ariaLabel': 'Pilih baris',
+      'class': 'rounded-xl border-border'
+    })
   },
-  {
-    accessorKey: 'id',
-    header: 'ID'
-  },
+  { accessorKey: 'id', header: 'ID' },
   {
     accessorKey: 'name',
-    header: 'Name',
-    cell: ({ row }) => {
-      return h('div', { class: 'flex items-center gap-3' }, [
-        h(UAvatar, {
-          ...row.original.avatar,
-          size: 'lg'
-        }),
-        h('div', undefined, [
-          h('p', { class: 'font-medium text-highlighted' }, row.original.name),
-          h('p', { class: '' }, `@${row.original.name}`)
-        ])
+    header: 'Nama',
+    cell: ({ row }) => h('div', { class: 'flex items-center gap-4' }, [
+      h(UAvatar, { ...row.original.avatar, size: 'lg', ui: { rounded: 'rounded-xl border border-border' } }),
+      h('div', undefined, [
+        h('p', { class: 'font-black tracking-tight text-foreground uppercase text-xs' }, row.original.name),
+        h('p', { class: 'text-[9px] font-bold tracking-widest text-muted-foreground' }, `@${row.original.name}`)
       ])
-    }
+    ])
   },
   {
     accessorKey: 'email',
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
-
       return h(UButton, {
-        color: 'neutral',
-        variant: 'ghost',
-        label: 'Email',
-        icon: isSorted
-          ? isSorted === 'asc'
-            ? 'i-lucide-arrow-up-narrow-wide'
-            : 'i-lucide-arrow-down-wide-narrow'
-          : 'i-lucide-arrow-up-down',
-        class: '-mx-2.5',
+        color: 'neutral', variant: 'ghost', label: 'Surel Elektronik',
+        icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+        class: '-mx-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] hover:bg-muted',
         onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
       })
     }
   },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => row.original.location
-  },
+  { accessorKey: 'location', header: 'Lokasi' },
   {
     accessorKey: 'status',
     header: 'Status',
     filterFn: 'equals',
     cell: ({ row }) => {
-      const color = {
-        subscribed: 'success' as const,
-        unsubscribed: 'error' as const,
-        bounced: 'warning' as const
-      }[row.original.status]
-
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.original.status
-      )
+      const color = { subscribed: 'success' as const, unsubscribed: 'error' as const, bounced: 'warning' as const }[row.original.status]
+      return h(UBadge, { class: 'uppercase tracking-widest font-black text-[8px] rounded-xl border border-current', variant: 'subtle', color }, () => row.original.status)
     }
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
-      return h(
-        'div',
-        { class: 'text-right' },
-        h(
-          UDropdownMenu,
-          {
-            content: {
-              align: 'end'
-            },
-            items: getRowItems(row)
-          },
-          () =>
-            h(UButton, {
-              icon: 'i-lucide-ellipsis-vertical',
-              color: 'neutral',
-              variant: 'ghost',
-              class: 'ml-auto'
-            })
-        )
-      )
-    }
+    cell: ({ row }) => h('div', { class: 'text-right' }, h(UDropdownMenu, { content: { align: 'end' }, items: getRowItems(row) }, () =>
+      h(UButton, { icon: 'i-lucide-ellipsis-vertical', color: 'neutral', variant: 'ghost', class: 'ml-auto rounded-xl hover:bg-muted' })
+    ))
   }
 ]
 
 const statusFilter = ref('all')
-
 watch(() => statusFilter.value, (newVal) => {
   if (!table?.value?.tableApi) return
-
   const statusColumn = table.value.tableApi.getColumn('status')
   if (!statusColumn) return
-
-  if (newVal === 'all') {
-    statusColumn.setFilterValue(undefined)
-  } else {
-    statusColumn.setFilterValue(newVal)
-  }
+  statusColumn.setFilterValue(newVal === 'all' ? undefined : newVal)
 })
 
 const email = computed({
-  get: (): string => {
-    return (table.value?.tableApi?.getColumn('email')?.getFilterValue() as string) || ''
-  },
-  set: (value: string) => {
-    table.value?.tableApi?.getColumn('email')?.setFilterValue(value || undefined)
-  }
+  get: (): string => (table.value?.tableApi?.getColumn('email')?.getFilterValue() as string) || '',
+  set: (value: string) => table.value?.tableApi?.getColumn('email')?.setFilterValue(value || undefined)
 })
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-})
+const pagination = ref({ pageIndex: 0, pageSize: 10 })
 </script>
 
 <template>
-  <UDashboardPanel id="customers">
-    <template #header>
-      <UDashboardNavbar title="Customers">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <UDashboardPanel id="customers" class="bg-background relative overflow-hidden rounded-xl border-l border-border z-10">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
+    <template #header>
+      <UDashboardNavbar title="Data Pengguna" class="border-b border-border bg-background/90 backdrop-blur-sm relative z-10 font-black uppercase tracking-widest">
+        <template #leading>
+          <UDashboardSidebarCollapse class="rounded-xl border border-border" />
+        </template>
         <template #right>
-          <CustomersAddModal />
+          <CustomersAddModal class="rounded-xl border border-border" />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <div class="flex flex-wrap items-center justify-between gap-1.5">
+      <div class="flex flex-wrap items-center justify-between gap-4 relative z-10 mb-6 bg-card p-4 border border-border">
         <UInput
           v-model="email"
-          class="max-w-sm"
+          class="max-w-sm w-full"
           icon="i-lucide-search"
-          placeholder="Filter emails..."
+          placeholder="Cari surel..."
+          :ui="{ base: 'rounded-xl border-border focus:ring-primary h-10', icon: { trailing: { pointerEvents: 'none' } } }"
         />
 
-        <div class="flex flex-wrap items-center gap-1.5">
+        <div class="flex flex-wrap items-center gap-3">
           <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
-              label="Delete"
-              color="error"
-              variant="subtle"
-              icon="i-lucide-trash"
+              label="Hapus Pilihan" color="error" variant="subtle" icon="i-lucide-trash"
+              class="rounded-xl font-bold uppercase tracking-widest text-[9px] h-10 border border-error"
             >
               <template #trailing>
-                <UKbd>
-                  {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
-                </UKbd>
+                <UKbd class="rounded-xl bg-error/20 text-error">{{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}</UKbd>
               </template>
             </UButton>
           </CustomersDeleteModal>
@@ -249,81 +154,60 @@ const pagination = ref({
           <USelect
             v-model="statusFilter"
             :items="[
-              { label: 'All', value: 'all' },
-              { label: 'Subscribed', value: 'subscribed' },
-              { label: 'Unsubscribed', value: 'unsubscribed' },
-              { label: 'Bounced', value: 'bounced' }
+              { label: 'Semua', value: 'all' },
+              { label: 'Aktif', value: 'subscribed' },
+              { label: 'Nonaktif', value: 'unsubscribed' },
+              { label: 'Tertunda', value: 'bounced' }
             ]"
-            :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-            placeholder="Filter status"
-            class="min-w-28"
+            :ui="{ base: 'rounded-xl border-border h-10 focus:ring-primary', trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
+            placeholder="Saring status"
+            class="min-w-[140px] font-bold uppercase tracking-widest text-[9px]"
           />
           <UDropdownMenu
-            :items="
-              table?.tableApi
-                ?.getAllColumns()
-                .filter((column: any) => column.getCanHide())
-                .map((column: any) => ({
-                  label: upperFirst(column.id),
-                  type: 'checkbox' as const,
-                  checked: column.getIsVisible(),
-                  onUpdateChecked(checked: boolean) {
-                    table?.tableApi?.getColumn(column.id)?.toggleVisibility(!!checked)
-                  },
-                  onSelect(e?: Event) {
-                    e?.preventDefault()
-                  }
-                }))
-            "
+            :items="table?.tableApi?.getAllColumns().filter((c: any) => c.getCanHide()).map((c: any) => ({ label: upperFirst(c.id), type: 'checkbox' as const, checked: c.getIsVisible(), onUpdateChecked(ch: boolean) { table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!ch) }, onSelect(e?: Event) { e?.preventDefault() } }))"
             :content="{ align: 'end' }"
           >
-            <UButton
-              label="Display"
-              color="neutral"
-              variant="outline"
-              trailing-icon="i-lucide-settings-2"
-            />
+            <UButton label="Tampilan" color="neutral" variant="outline" trailing-icon="i-lucide-settings-2" class="rounded-xl font-bold uppercase tracking-widest text-[9px] h-10 border-border" />
           </UDropdownMenu>
         </div>
       </div>
 
-      <UTable
-        ref="table"
-        v-model:column-filters="columnFilters"
-        v-model:column-visibility="columnVisibility"
-        v-model:row-selection="rowSelection"
-        v-model:pagination="pagination"
-        :pagination-options="{
-          getPaginationRowModel: getPaginationRowModel()
-        }"
-        class="shrink-0"
-        :data="data"
-        :columns="columns"
-        :loading="status === 'pending'"
-        :ui="{
-          base: 'table-fixed border-separate border-spacing-0',
-          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-          tbody: '[&>tr]:last:[&>td]:border-b-0',
-          th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-          td: 'border-b border-default',
-          separator: 'h-0'
-        }"
-      />
+      <div class="bg-card border border-border relative z-10 overflow-x-auto shadow-xl">
+        <UTable
+          ref="table"
+          v-model:column-filters="columnFilters"
+          v-model:column-visibility="columnVisibility"
+          v-model:row-selection="rowSelection"
+          v-model:pagination="pagination"
+          :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+          class="shrink-0 w-full"
+          :data="data"
+          :columns="columns"
+          :loading="status === 'pending'"
+          :ui="{
+            base: 'table-auto w-full border-collapse bg-background',
+            thead: '[&>tr]:bg-muted/30 [&>tr]:after:content-none text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground',
+            tbody: '[&>tr]:hover:bg-muted/10 transition-colors',
+            th: 'py-4 px-4 rounded-xl border-b border-border text-left',
+            td: 'border-b border-border/50 py-4 px-4',
+            separator: 'h-0 border-0'
+          }"
+        />
+      </div>
 
-      <div class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto">
-        <div class="text-sm text-muted">
-          {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-4 mt-6 relative z-10">
+        <div class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <span class="text-primary">{{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }}</span> dari
+          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} baris dipilih.
         </div>
 
-        <div class="flex items-center gap-1.5">
-          <UPagination
-            :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-            :total="table?.tableApi?.getFilteredRowModel().rows.length"
-            @update:page="(p: number) => table?.tableApi?.setPageIndex(p - 1)"
-          />
-        </div>
+        <UPagination
+          :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+          :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+          :total="table?.tableApi?.getFilteredRowModel().rows.length"
+          @update:page="(p: number) => table?.tableApi?.setPageIndex(p - 1)"
+          :ui="{ wrapper: 'gap-1', base: 'rounded-xl border border-border w-8 h-8 flex items-center justify-center font-bold text-[10px]' }"
+        />
       </div>
     </template>
   </UDashboardPanel>

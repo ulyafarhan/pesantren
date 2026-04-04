@@ -14,142 +14,163 @@ import {
   Quote,
   MessageSquare,
   FileDown,
-  User
+  User,
+  X
 } from 'lucide-vue-next';
 
 const route = useRoute();
-const isSidebarOpen = ref(true);
+const isSidebarOpen = ref(false); // Default tertutup di mobile, terbuka di desktop via CSS
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-  { name: 'Artikel', icon: FileText, path: '/admin/articles' },
+  { name: 'Artikel', icon: FileText, path: '/admin/artikel' },      
   { name: 'Program', icon: GraduationCap, path: '/admin/program' },
   { name: 'Fasilitas', icon: Building, path: '/admin/fasilitas' },
   { name: 'Galeri', icon: ImageIcon, path: '/admin/galeri' },
   { name: 'Testimoni', icon: Quote, path: '/admin/testimoni' },
   { name: 'Brosur', icon: FileDown, path: '/admin/brosur' },
-  { name: 'Pengaturan', icon: Settings, path: '/admin/settings' },
+  { name: 'Pengaturan', icon: Settings, path: '/admin/pengaturan' }, 
 ];
 
 const logout = async () => {
-  if (confirm('Yakin ingin keluar?')) {
+  if (confirm('Yakin ingin keluar dari sistem?')) {
     useCookie('token').value = null;
     navigateTo('/login');
   }
 };
+
+// Tutup sidebar otomatis saat rute berubah di mobile
+watch(() => route.path, () => {
+  isSidebarOpen.value = false;
+});
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f8fafc] flex overflow-hidden font-sans">
-    <!-- Sidebar -->
+  <div class="min-h-screen bg-background flex overflow-hidden font-sans text-foreground">
+    
+    <div 
+      v-if="isSidebarOpen" 
+      @click="isSidebarOpen = false"
+      class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+    ></div>
+
     <aside 
       :class="[
-        'fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-72 bg-card border-r border-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       ]"
     >
-      <div class="flex flex-col h-full">
-        <!-- Logo Area -->
-        <div class="h-20 flex items-center px-8 border-b border-slate-100">
-          <div class="size-10 bg-primary rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-primary/20">
-            <GraduationCap class="size-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 class="text-lg font-black tracking-tighter text-slate-900 leading-tight">AdminPanel</h1>
-            <p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] leading-none">PesantrenKu</p>
-          </div>
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0"></div>
+
+      <div class="h-20 flex items-center px-8 border-b border-border bg-background relative z-10 justify-between">
+        <div class="flex items-center gap-4">
+           <div class="w-10 h-10 bg-primary flex items-center justify-center border border-border shrink-0">
+             <GraduationCap class="w-6 h-6 text-primary-foreground" />
+           </div>
+           <div>
+             <h1 class="text-lg font-black tracking-tighter text-foreground leading-none uppercase">Admin<span class="text-primary italic font-serif lowercase">Panel</span></h1>
+             <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">Sistem Terpadu</p>
+           </div>
         </div>
+        <button @click="isSidebarOpen = false" class="lg:hidden p-2 text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border">
+           <X class="w-5 h-5" />
+        </button>
+      </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto px-4 py-8 space-y-1.5 custom-scrollbar">
-          <div v-for="item in menuItems" :key="item.path">
-            <NuxtLink 
-              :to="item.path"
-              :class="[
-                'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group',
-                route.path === item.path 
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-primary'
-              ]"
-            >
-              <component :is="item.icon" :class="['size-5 shrink-0', route.path === item.path ? 'text-white' : 'group-hover:scale-110 transition-transform']" />
-              <span class="flex-1">{{ item.name }}</span>
-              <ChevronRight v-if="route.path === item.path" class="size-4 opacity-50" />
-            </NuxtLink>
-          </div>
-        </nav>
-
-        <!-- Footer Actions -->
-        <div class="p-4 border-t border-slate-100 space-y-2">
-          <NuxtLink to="/" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-500 hover:text-primary transition-colors">
-            <Globe class="size-5" />
-            Lihat Situs
+      <nav class="flex-1 overflow-y-auto py-6 space-y-1 relative z-10 custom-scrollbar">
+        <div class="px-8 pb-4">
+           <span class="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground">Menu Utama</span>
+        </div>
+        <div v-for="item in menuItems" :key="item.path">
+          <NuxtLink 
+            :to="item.path"
+            :class="[
+              'flex items-center gap-4 px-8 py-3.5 text-xs font-bold transition-all group border-l-[3px]',
+              route.path === item.path || route.path.startsWith(item.path + '/') && item.path !== '/admin'
+                ? 'bg-primary/5 text-primary border-primary' 
+                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground border-transparent'
+            ]"
+          >
+            <component :is="item.icon" :class="['w-5 h-5 shrink-0', route.path === item.path ? 'text-primary' : 'group-hover:scale-110 transition-transform']" />
+            <span class="flex-1 uppercase tracking-widest">{{ item.name }}</span>
+            <ChevronRight v-if="route.path === item.path" class="w-4 h-4 opacity-100" />
           </NuxtLink>
-          <button @click="logout" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all active:scale-95">
-            <LogOut class="size-5" />
-            Keluar Sistem
-          </button>
         </div>
+      </nav>
+
+      <div class="p-6 border-t border-border space-y-3 bg-background relative z-10">
+        <NuxtLink to="/" class="flex items-center gap-4 px-4 py-3 text-[10px] uppercase tracking-widest font-bold text-muted-foreground hover:text-primary transition-colors border border-transparent hover:border-border bg-card">
+          <Globe class="w-4 h-4" />
+          Lihat Situs Publik
+        </NuxtLink>
+        <button @click="logout" class="w-full flex items-center gap-4 px-4 py-3 text-[10px] uppercase tracking-widest font-bold text-error hover:bg-error hover:text-error-foreground transition-all active:scale-95 border border-error/20 bg-error/5">
+          <LogOut class="w-4 h-4" />
+          Keluar Sistem
+        </button>
       </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-      <!-- Header -->
-      <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 shrink-0 z-40">
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-muted/10 relative">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+
+      <header class="h-20 bg-background/90 backdrop-blur-md border-b border-border flex items-center justify-between px-6 md:px-8 shrink-0 z-30">
         <div class="flex items-center gap-4">
-          <button @click="isSidebarOpen = !isSidebarOpen" class="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors">
-            <Menu class="size-6 text-slate-600" />
+          <button @click="isSidebarOpen = true" class="lg:hidden p-2 border border-border bg-card hover:bg-muted transition-colors">
+            <Menu class="w-5 h-5 text-foreground" />
           </button>
+          
           <div class="hidden md:block">
-            <h2 class="text-sm font-black text-slate-500 uppercase tracking-widest leading-none">Manajemen Sitem</h2>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs font-bold text-slate-900">{{ menuItems.find(i => i.path === route.path)?.name || 'Dashboard' }}</span>
-              <div class="size-1 bg-slate-300 rounded-xl"></div>
-              <span class="text-[10px] font-bold text-primary uppercase tracking-widest">v2.0.4</span>
+            <h2 class="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none">Status Operasional</h2>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="text-sm font-black text-foreground uppercase tracking-widest">{{ menuItems.find(i => route.path.startsWith(i.path) && i.path !== '/admin')?.name || 'Dashboard' }}</span>
+              <div class="w-1 h-1 bg-border"></div>
+              <span class="text-[9px] font-bold text-primary uppercase tracking-[0.2em] bg-primary/10 px-2 py-0.5 border border-primary/20">v2.0.4 - Stabil</span>
             </div>
           </div>
         </div>
 
         <div class="flex items-center gap-6">
-          <div class="flex items-center gap-3 pr-6 border-r border-slate-200 hidden sm:flex">
-            <div class="size-10 rounded-xl bg-slate-50 flex items-center justify-center relative">
-              <Bell class="size-5 text-slate-400" />
-              <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+          <div class="flex items-center gap-4 pr-6 border-r border-border hidden sm:flex">
+            <div class="w-10 h-10 bg-background border border-border flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group">
+              <Bell class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span class="absolute top-2 right-2 w-2 h-2 bg-primary"></span>
             </div>
           </div>
-          <div class="flex items-center gap-3">
+          
+          <div class="flex items-center gap-4">
             <div class="text-right hidden sm:block">
-              <p class="text-xs font-black text-slate-900 leading-none">Admin Utama</p>
-              <p class="text-[10px] font-bold text-primary uppercase mt-1">Super User</p>
+              <p class="text-xs font-black text-foreground uppercase tracking-widest leading-none">Administrator</p>
+              <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Akses Penuh</p>
             </div>
-            <div class="size-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shadow-inner">
-              <User class="size-6 text-slate-400" />
+            <div class="w-10 h-10 bg-primary border border-primary flex items-center justify-center shadow-none text-primary-foreground font-black text-xs">
+              AD
             </div>
           </div>
         </div>
       </header>
 
-      <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+      <main class="flex-1 overflow-y-auto p-6 md:p-8 relative z-10 custom-scrollbar">
         <slot />
-      </div>
+      </main>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Architectural Blocky Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-muted);
+  border-left: 1px solid var(--border-color);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 20px;
+  background: var(--border-color);
+  border: 1px solid var(--bg-muted);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: var(--color-primary);
 }
 </style>

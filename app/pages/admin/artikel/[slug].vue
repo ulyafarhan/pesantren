@@ -1,18 +1,184 @@
 <script setup lang="ts">
-import { Save, X, Upload, Image as ImageIcon, Loader2, ArrowLeft, FileText, Settings2, Eye, Calendar, History
-} from 'lucide-vue-next';
+import { ArrowLeft, Save, Loader2, X, FileText, Settings2, Eye, Upload, Image as ImageIcon } from 'lucide-vue-next';
+
 definePageMeta({ layout: 'admin', middleware: 'admin-only' });
-const route = useRoute()
-const slug = route.params.slug as string const { data: article } = await useFetch(`/api/articles/${slug}`) const title = ref(article.value?.title || '')
-const excerpt = ref(article.value?.excerpt || '')
-const content = ref(article.value?.content || '')
-const isPublished = ref(!!article.value?.isPublished)
-const coverImage = ref(article.value?.coverImage || '')
-const loading = ref(false)
-const errorMsg = ref('') useHead({ title: `Edit: ${article.value?.title || 'Artikel'} - Admin PesantrenKu` });
-const handleSave = async () => { loading.value = true errorMsg.value = '' try { if (!title.value || !content.value) { throw new Error('Judul dan Isi Konten wajib diisi.') } await $fetch(`/api/articles/${slug}`, { method: 'PUT', body: { title: title.value, excerpt: excerpt.value, content: content.value, isPublished: isPublished.value, coverImage: coverImage.value || null } }) navigateTo('/admin/artikel') } catch (err: any) { errorMsg.value = err?.data?.statusMessage || err.message || 'Gagal memperbarui artikel.' } finally { loading.value = false }
-} const uploadCover = async (e: Event) => { const input = e.target as HTMLInputElement if (!input.files?.length) return const formData = new FormData() formData.append('file', input.files[0]) try { const res = await $fetch<{ url: string }>('/api/upload', { method: 'POST', body: formData }) coverImage.value = res.url } catch { errorMsg.value = 'Gagal mengunggah gambar sampul.' }
+
+const route = useRoute();
+const slug = route.params.slug as string;
+
+const { data: article, error: fetchError } = await useFetch(`/api/articles/${slug}`);
+
+if (fetchError.value || !article.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Dokumen artikel tidak ditemukan di dalam sistem.' });
+}
+
+const title = ref(article.value?.title || '');
+const excerpt = ref(article.value?.excerpt || '');
+const content = ref(article.value?.content || '');
+const isPublished = ref(!!article.value?.isPublished);
+const coverImage = ref(article.value?.coverImage || '');
+const loading = ref(false);
+const errorMsg = ref('');
+
+useHead({ title: `Modifikasi: ${title.value || 'Artikel'} - Admin PesantrenKu` });
+
+const handleSave = async () => {
+  if (!title.value || !content.value) {
+    errorMsg.value = 'Kolom Judul Utama dan Isi Konten wajib didefinisikan.';
+    return;
+  }
+
+  loading.value = true;
+  errorMsg.value = '';
+
+  try {
+    await $fetch(`/api/articles/${slug}`, {
+      method: 'PUT',
+      body: {
+        title: title.value,
+        excerpt: excerpt.value,
+        content: content.value,
+        isPublished: isPublished.value,
+        coverImage: coverImage.value || null
+      }
+    });
+    
+    alert('Sistem berhasil memperbarui dokumen artikel!');
+    navigateTo('/admin/artikel');
+  } catch (e: any) {
+    errorMsg.value = e.statusMessage || 'Terjadi kesalahan sistem saat memperbarui artikel.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const uploadCover = async (e: Event) => { 
+  const input = e.target as HTMLInputElement 
+  if (!input.files?.length) return 
+  const formData = new FormData() 
+  formData.append('file', input.files[0]) 
+  try { 
+    const res = await $fetch<{ url: string }>('/api/upload', { 
+      method: 'POST', 
+      body: formData 
+    }) 
+    coverImage.value = res.url 
+  } catch { 
+    errorMsg.value = 'Terjadi kesalahan sistem saat mengunggah media visual.' 
+  }
 }
 </script>
-<template> <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"> <!-- Header --> <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"> <div class="flex items-center gap-4"> <UiButton variant="ghost" size="icon" as-child class="rounded-xl hover:bg-muted transition-all"> <NuxtLink to="/admin/artikel"> <ArrowLeft class="size-5" /> </NuxtLink> </UiButton> <div class="space-y-1"> <div class="flex items-center gap-2"> <h1 class="text-3xl font-extrabold tracking-tight text-foreground line-clamp-1">Edit Artikel</h1> <UiBadge v-if="article?.isPublished" variant="outline" class="bg-emerald-500/10 text-emerald-600 border-0 rounded-xl py-0 px-2 font-bold text-[9px] uppercase tracking-widest">Terbit</UiBadge> </div> <p class="text-muted-foreground font-medium">Perbarui informasi dan konten artikel yang sudah ada.</p> </div> </div> <div class="flex items-center gap-3 w-full md:w-auto"> <UiButton variant="outline" as-child class="flex-1 md:flex-none rounded-xl h-11 px-6 font-bold transition-all active:scale-95"> <NuxtLink to="/admin/artikel">Batal</NuxtLink> </UiButton> <UiButton @click="handleSave" :disabled="loading" class="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95"> <Loader2 v-if="loading" class="mr-2 size-4 animate-spin" /> <Save v-else class="mr-2 size-4" /> Simpan Perubahan </UiButton> </div> </div> <div v-if="errorMsg" class="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold flex items-center gap-3"> <X class="size-5 shrink-0" /> {{ errorMsg }} </div> <div class="grid grid-cols-1 lg:grid-cols-3 gap-8"> <!-- Main Content Area --> <div class="lg:col-span-2 space-y-6"> <UiCard class="border-0 shadow-xl shadow-black/5 bg-background rounded-xl overflow-hidden ring-1 ring-border/5"> <UiCardHeader class="pb-4 border-b border-border/10 bg-muted/5 flex flex-row items-center justify-between"> <UiCardTitle class="text-lg font-bold flex items-center gap-2"> <FileText class="size-5 text-primary" /> Konten Artikel </UiCardTitle> <div class="flex items-center gap-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"> <span class="flex items-center gap-1"><History class="size-3" /> Dibuat: {{ new Date(article?.createdAt).toLocaleDateString('id-ID') }}</span> </div> </UiCardHeader> <UiCardContent class="p-8 space-y-8"> <div class="space-y-3"> <UiLabel for="title" class="text-sm font-bold ml-1 uppercase tracking-widest text-muted-foreground">Judul Artikel</UiLabel> <UiInput id="title" v-model="title" placeholder="Masukkan judul..." class="text-xl font-bold h-14 border-muted focus-visible:ring-primary rounded-xl" /> </div> <div class="space-y-3"> <UiLabel for="excerpt" class="text-sm font-bold ml-1 uppercase tracking-widest text-muted-foreground">Ringkasan</UiLabel> <UiTextarea id="excerpt" v-model="excerpt" placeholder="Ringkasan singkat..." class="min-h-[100px] border-muted focus-visible:ring-primary rounded-xl resize-none italic" /> </div> <UiSeparator class="opacity-40" /> <div class="space-y-3"> <UiLabel for="content" class="text-sm font-bold ml-1 uppercase tracking-widest text-muted-foreground">Isi Artikel (HTML)</UiLabel> <UiTextarea id="content" v-model="content" placeholder="Tulis konten..." class="min-h-[400px] border-muted focus-visible:ring-primary rounded-xl font-mono text-sm p-6" /> </div> </UiCardContent> </UiCard> </div> <!-- Settings Sidebar Area --> <div class="space-y-6"> <UiCard class="border-0 shadow-xl shadow-black/5 bg-background rounded-xl overflow-hidden ring-1 ring-border/5"> <UiCardHeader class="pb-4 border-b border-border/10 bg-muted/5"> <UiCardTitle class="text-lg font-bold flex items-center gap-2"> <Settings2 class="size-5 text-primary" /> Pengaturan </UiCardTitle> </UiCardHeader> <UiCardContent class="p-6 space-y-8"> <div class="flex items-center justify-between p-4 bg-muted/10 rounded-xl border border-border/20"> <div class="space-y-0.5"> <div class="text-sm font-bold flex items-center gap-2"> <Eye class="size-4 text-emerald-500" /> Publikasikan </div> <p class="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">Tampilkan di web publik</p> </div> <UiSwitch v-model:checked="isPublished" class="data-[state=checked]:bg-primary" /> </div> <UiSeparator class="opacity-40" /> <div class="space-y-4"> <UiLabel class="text-sm font-bold ml-1 uppercase tracking-widest text-muted-foreground">Gambar Sampul</UiLabel> <div v-if="coverImage" class="relative group rounded-xl overflow-hidden border border-border/40 shadow-inner bg-muted/10"> <img :src="coverImage" alt="Cover Preview" class="w-full aspect-video object-cover transition- duration-500 group-" /> <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3"> <UiButton size="sm" variant="destructive" @click="coverImage = ''" class="rounded-xl h-9 font-bold"> <X class="size-4 mr-1.5" /> Ganti Gambar </UiButton> </div> </div> <label v-else class="border-2 border-dashed border-muted hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center py-12 px-6 rounded-xl text-center group" > <div class="size-16 bg-muted rounded-xl flex items-center justify-center mb-4 group- transition- shadow-inner text-muted-foreground group-hover:text-primary transition-colors"> <Upload class="size-7" /> </div> <h4 class="font-bold text-sm">Unggah Sampul Baru</h4> <input type="file" accept="image/*" class="hidden" @change="uploadCover" /> </label> </div> </UiCardContent> </UiCard> <!-- Stats Card --> <UiCard class="border-0 shadow-sm rounded-xl overflow-hidden bg-muted/10 ring-1 ring-border/5"> <UiCardContent class="p-6 space-y-4"> <div class="flex items-center justify-between text-xs font-bold text-muted-foreground uppercase tracking-widest"> <span>Metadata</span> </div> <div class="space-y-3"> <div class="flex items-center gap-3 text-sm"> <div class="size-8 rounded-lg bg-background flex items-center justify-center shrink-0 shadow-sm"> <Calendar class="size-4 text-primary" /> </div> <div class="flex flex-col leading-none"> <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">Terbit Pada</span> <span class="font-bold text-foreground mt-0.5">{{ article?.publishedAt ? new Date(article.publishedAt).toLocaleDateString('id-ID') : 'Belum Terbit' }}</span> </div> </div> </div> </UiCardContent> </UiCard> </div> </div> </div>
+
+<template>
+  <div class="space-y-8 animate-in fade-in duration-500 relative z-10"> 
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-border pb-6"> 
+      <div class="flex items-center gap-6"> 
+        <UiButton variant="outline" size="icon" as-child class="rounded-xl border-border hover:bg-foreground hover:text-background w-12 h-12 transition-colors"> 
+          <NuxtLink to="/admin/artikel"> <ArrowLeft class="w-5 h-5" /> </NuxtLink> 
+        </UiButton> 
+        <div class="space-y-1"> 
+          <h1 class="text-3xl font-black tracking-tighter text-foreground uppercase">Modifikasi Dokumen</h1> 
+          <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">ID Dokumen: {{ slug }}</p> 
+        </div> 
+      </div> 
+      
+      <div class="flex items-center gap-3 w-full md:w-auto"> 
+        <UiButton variant="outline" as-child class="flex-1 md:flex-none rounded-xl border-border font-bold uppercase tracking-widest text-[9px] h-12 px-6 hover:bg-muted transition-colors"> 
+          <NuxtLink to="/admin/artikel">Batalkan</NuxtLink> 
+        </UiButton> 
+        <UiButton @click="handleSave" :disabled="loading" class="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-widest text-[9px] h-12 px-8 rounded-xl border border-primary transition-all active:scale-95"> 
+          <Loader2 v-if="loading" class="mr-2 w-4 h-4 animate-spin" /> 
+          <Save v-else class="mr-2 w-4 h-4" /> Perbarui Dokumen
+        </UiButton> 
+      </div> 
+    </div> 
+
+    <div v-if="errorMsg" class="p-4 bg-error/10 border border-error/20 text-error text-[10px] uppercase tracking-widest font-bold flex items-center gap-3"> 
+      <X class="w-4 h-4 shrink-0" /> {{ errorMsg }} 
+    </div> 
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"> 
+      
+      <div class="lg:col-span-2 space-y-6"> 
+        <UiCard class="border border-border bg-card rounded-xl overflow-hidden shadow-none"> 
+          <UiCardHeader class="p-6 border-b border-border bg-muted/10"> 
+            <UiCardTitle class="text-sm font-black uppercase tracking-widest flex items-center gap-3"> 
+              <FileText class="w-4 h-4 text-primary" /> Parameter Konten 
+            </UiCardTitle> 
+          </UiCardHeader> 
+          <UiCardContent class="p-8 space-y-8 bg-background"> 
+            <div class="space-y-3"> 
+              <label for="title" class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Judul Publikasi</label> 
+              <UiInput id="title" v-model="title" placeholder="DEFINISIKAN JUDUL DI SINI..." class="text-xl font-black h-16 border-border bg-muted/5 focus-visible:ring-primary focus-visible:border-primary rounded-xl tracking-tight uppercase" /> 
+            </div> 
+            
+            <div class="space-y-3"> 
+              <label for="excerpt" class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Ringkasan Eksekutif (Excerpt)</label> 
+              <UiTextarea id="excerpt" v-model="excerpt" placeholder="Tuliskan 1-2 kalimat ringkasan yang akan muncul di kartu artikel..." class="min-h-[100px] border-border bg-muted/5 focus-visible:ring-primary rounded-xl resize-none font-serif italic text-base" /> 
+            </div> 
+            
+            <div class="w-full h-px bg-border/50"></div> 
+            
+            <div class="space-y-3"> 
+              <div class="flex items-center justify-between"> 
+                <label for="content" class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Batang Tubuh Artikel</label> 
+                <div class="text-[8px] bg-primary/10 text-primary border border-primary/20 px-2 py-1 font-black uppercase tracking-widest">Markdown & HTML Ready</div> 
+              </div> 
+              <UiTextarea id="content" v-model="content" placeholder="Ketikkan teks artikel secara mendalam di sini..." class="min-h-[400px] border-border bg-muted/5 focus-visible:ring-primary rounded-xl font-mono text-sm leading-relaxed p-6" /> 
+            </div> 
+          </UiCardContent> 
+        </UiCard> 
+      </div> 
+
+      <div class="space-y-6"> 
+        <UiCard class="border border-border bg-card rounded-xl overflow-hidden shadow-none"> 
+          <UiCardHeader class="p-6 border-b border-border bg-muted/10"> 
+            <UiCardTitle class="text-sm font-black uppercase tracking-widest flex items-center gap-3"> 
+              <Settings2 class="w-4 h-4 text-primary" /> Konfigurasi Sistem 
+            </UiCardTitle> 
+          </UiCardHeader> 
+          
+          <UiCardContent class="p-6 space-y-8 bg-background"> 
+            
+            <div class="flex items-center justify-between p-4 bg-background border border-border"> 
+              <div class="space-y-1"> 
+                <div class="text-[10px] font-black uppercase tracking-widest flex items-center gap-2"> 
+                  <Eye class="w-3.5 h-3.5 text-primary" /> Status Tayang 
+                </div> 
+                <p class="text-[8px] text-muted-foreground font-bold uppercase tracking-widest">Tampilkan ke publik</p> 
+              </div> 
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="isPublished" class="sr-only peer">
+                <div class="w-11 h-6 bg-muted peer-focus:outline-none border border-border peer-checked:bg-primary transition-colors duration-300 rounded-xl after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-[20px]"></div>
+              </label>
+            </div> 
+            
+            <div class="w-full h-px bg-border/50"></div> 
+            
+            <div class="space-y-4"> 
+              <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground block">Media Visual Utama</label> 
+              <div v-if="coverImage" class="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-video"> 
+                <img :src="coverImage" alt="Cover Preview" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" /> 
+                <div class="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm"> 
+                  <UiButton size="sm" variant="outline" @click="coverImage = ''" class="rounded-xl border-error text-error hover:bg-error hover:text-error-foreground h-10 font-bold uppercase tracking-widest text-[9px]"> 
+                    <X class="w-3.5 h-3.5 mr-2" /> Hapus Media 
+                  </UiButton> 
+                </div> 
+              </div> 
+              
+              <label v-else class="border-2 border-dashed border-border bg-background hover:bg-muted/50 transition-colors cursor-pointer flex flex-col items-center justify-center py-12 px-6 rounded-xl text-center group" > 
+                <div class="w-12 h-12 bg-muted border border-border flex items-center justify-center mb-4 group-hover:border-primary transition-colors"> 
+                  <Upload class="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" /> 
+                </div> 
+                <h4 class="font-black text-[10px] uppercase tracking-widest text-foreground">Pilih File Visual</h4> 
+                <p class="text-[8px] text-muted-foreground mt-2 uppercase tracking-widest font-bold">JPG, PNG, WEBP (Max 2MB)</p> 
+                <input type="file" accept="image/*" class="hidden" @change="uploadCover" /> 
+              </label> 
+            </div> 
+          </UiCardContent> 
+        </UiCard> 
+      </div> 
+    </div> 
+  </div>
 </template>

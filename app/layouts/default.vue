@@ -46,214 +46,234 @@ onMounted(() => {
     isScrolled.value = window.scrollY > 50;
   });
 });
+
+// Tutup menu mobile jika rute berubah
+const route = useRoute();
+watch(() => route.path, () => {
+  isMenuOpen.value = false;
+});
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
-    <!-- TOP BAR -->
-    <div class="bg-foreground text-background py-2 text-[10px] font-black uppercase tracking-[0.2em] hidden md:block">
+  <div class="min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white bg-background text-foreground">
+    
+    <div 
+      :class="[
+        'bg-foreground text-background py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] hidden md:block border-b border-border/20 transition-all duration-500 origin-top',
+        isScrolled ? 'h-0 py-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'
+      ]"
+    >
       <div class="container mx-auto px-6 flex justify-between items-center">
         <div class="flex gap-8">
            <span class="flex items-center gap-2 group cursor-pointer transition-colors hover:text-primary">
-              <Phone class="size-3 text-primary group-hover:scale-110 transition-transform" /> 
+              <Phone class="w-3 h-3 text-primary group-hover:scale-110 transition-transform" /> 
               {{ settings.contact_phone || '+62 800-0000-0000' }}
            </span>
            <span class="flex items-center gap-2 group cursor-pointer transition-colors hover:text-primary">
-              <Mail class="size-3 text-primary group-hover:scale-110 transition-transform" /> 
+              <Mail class="w-3 h-3 text-primary group-hover:scale-110 transition-transform" /> 
               {{ settings.contact_email || 'hubungi@pesantrenku.com' }}
            </span>
         </div>
         <div class="flex gap-4">
-           <a :href="settings.social_instagram" target="_blank" class="hover:text-primary transition-colors"><Instagram class="size-3.5" /></a>
-           <a :href="settings.social_youtube" target="_blank" class="hover:text-primary transition-colors"><Youtube class="size-3.5" /></a>
+           <a :href="settings.social_instagram" target="_blank" class="hover:text-primary transition-colors"><Instagram class="w-3.5 h-3.5" /></a>
+           <a :href="settings.social_youtube" target="_blank" class="hover:text-primary transition-colors"><Youtube class="w-3.5 h-3.5" /></a>
         </div>
       </div>
     </div>
 
-    <!-- NAVBAR -->
     <nav 
       :class="[
-        'sticky top-0 z-50 transition-all duration-500 ease-in-out',
-        isScrolled ? 'bg-white/80 backdrop-blur-2xl border-b border-border/10 py-3 shadow-2xl shadow-black/5' : 'bg-transparent py-6'
+        'sticky top-0 z-50 transition-all duration-500 ease-in-out border-b',
+        isScrolled ? 'bg-background/95 backdrop-blur-md border-border shadow-sm py-3' : 'bg-background border-border/10 py-5'
       ]"
     >
       <div class="container mx-auto px-6 flex justify-between items-center">
-        <NuxtLink to="/" class="flex items-center gap-3 group">
-          <div class="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-6 transition-all duration-500">
-            <GraduationCap class="size-6 text-white" />
+        <NuxtLink to="/" class="flex items-center gap-3 group relative z-50">
+          <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center border border-border group-hover:bg-foreground transition-all duration-500">
+            <GraduationCap class="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-             <span class="text-xl font-black tracking-tighter text-foreground decoration-primary decoration-2 block leading-none">Pesantren<span class="text-primary italic">Ku</span></span>
-             <span class="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1 block">Modern & Beradab</span>
+             <span class="text-xl font-black tracking-tighter text-foreground block leading-none uppercase">Pesantren<span class="text-primary italic font-serif lowercase">Ku</span></span>
+             <span class="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.3em] leading-none mt-1 block">Modern & Beradab</span>
           </div>
         </NuxtLink>
 
-        <!-- DESKTOP NAV -->
         <div class="hidden lg:flex items-center gap-8">
           <NuxtLink 
             v-for="link in navLinks" 
             :key="link.path" 
             :to="link.path"
-            class="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/60 hover:text-primary transition-all duration-300 relative group py-2"
-            active-class="text-primary !opacity-100"
+            class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-all duration-300 relative group py-2"
+            active-class="!text-foreground font-black"
           >
             {{ link.name }}
-            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary transition-all duration-500 group-hover:w-full rounded-xl"></span>
+            <span :class="[
+              'absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-300',
+              route.path === link.path ? 'w-full' : 'w-0 group-hover:w-full'
+            ]"></span>
           </NuxtLink>
         </div>
 
-        <div class="flex items-center gap-4">
-          <UiButton as-child class="hidden lg:flex px-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-[11px] uppercase tracking-widest h-12 shadow-xl shadow-primary/20 transition-all active:scale-95">
-            <NuxtLink to="/kontak">Daftar Sekarang</NuxtLink>
+        <div class="flex items-center gap-4 relative z-50">
+          <UiButton as-child class="hidden lg:flex px-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-[10px] uppercase tracking-widest h-10 transition-transform active:scale-95 border border-transparent">
+            <NuxtLink to="/kontak">Pendaftaran Santri Baru</NuxtLink>
           </UiButton>
           
-          <button @click="isMenuOpen = !isMenuOpen" class="lg:hidden p-2 text-foreground hover:bg-muted rounded-xl transition-colors">
-            <Menu v-if="!isMenuOpen" class="size-7" />
-            <X v-else class="size-7" />
+          <button @click="isMenuOpen = !isMenuOpen" class="lg:hidden w-10 h-10 flex items-center justify-center bg-card text-foreground border border-border rounded-xl hover:bg-muted transition-colors">
+            <Menu v-if="!isMenuOpen" class="w-5 h-5" />
+            <X v-else class="w-5 h-5" />
           </button>
         </div>
       </div>
     </nav>
 
-    <!-- MOBILE MENU -->
     <Transition
       enter-active-class="transition duration-300 ease-out"
-      enter-from-class="translate-x-full opacity-0"
-      enter-to-class="translate-x-0 opacity-100"
+      enter-from-class="opacity-0 -translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
       leave-active-class="transition duration-200 ease-in"
-      leave-from-class="translate-x-0 opacity-100"
-      leave-to-class="translate-x-full opacity-0"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-4"
     >
-      <div v-if="isMenuOpen" class="fixed inset-0 z-[60] bg-white flex flex-col p-10 lg:hidden">
-        <div class="flex justify-between items-center mb-16">
-           <NuxtLink to="/" class="flex items-center gap-3">
-              <div class="size-10 bg-primary rounded-xl flex items-center justify-center">
-                 <GraduationCap class="size-6 text-white" />
-              </div>
-              <span class="text-xl font-black tracking-tighter italic">PesantrenKu</span>
-           </NuxtLink>
-           <button @click="isMenuOpen = false" class="p-2 bg-muted rounded-xl"><X class="size-6" /></button>
-        </div>
-        <div class="flex flex-col gap-8 flex-1">
+      <div v-if="isMenuOpen" class="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl lg:hidden pt-24 border-b border-border shadow-2xl flex flex-col h-[100dvh]">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+        
+        <div class="flex flex-col gap-4 flex-1 px-8 py-4 overflow-y-auto relative z-10 custom-scrollbar">
           <NuxtLink 
             v-for="link in navLinks" 
             :key="link.path" 
             :to="link.path"
-            @click="isMenuOpen = false"
-            class="text-4xl font-black tracking-tighter italic text-slate-400 hover:text-primary transition-colors flex items-center justify-between group"
+            class="text-3xl font-black tracking-tighter uppercase text-muted-foreground hover:text-foreground transition-all flex items-center justify-between group border-b border-border/50 pb-4"
+            active-class="!text-foreground !border-primary"
           >
             {{ link.name }}
-            <ArrowRight class="size-8 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
+            <ArrowRight :class="['w-6 h-6 transition-all', route.path === link.path ? 'opacity-100 text-primary' : 'opacity-0 group-hover:opacity-100 text-muted-foreground']" />
           </NuxtLink>
         </div>
-        <div class="pt-8 border-t border-border/10 space-y-6">
-           <div class="flex gap-4">
-              <div class="size-12 rounded-xl bg-muted flex items-center justify-center text-primary"><Phone class="size-5" /></div>
-              <div class="flex flex-col">
-                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Hubungi Kami</span>
-                 <span class="font-bold text-lg leading-none">{{ settings.contact_phone || '+62 800-0000-0000' }}</span>
-              </div>
-           </div>
-           <UiButton as-child class="w-full h-14 rounded-xl bg-primary font-black uppercase tracking-widest text-xs">
-              <NuxtLink to="/kontak" @click="isMenuOpen = false">Daftar Sekarang</NuxtLink>
+        
+        <div class="p-8 mt-auto relative z-10 bg-background border-t border-border">
+           <UiButton as-child class="w-full h-14 rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+              <NuxtLink to="/kontak">Daftar Sekarang <ChevronRight class="w-4 h-4" /></NuxtLink>
            </UiButton>
         </div>
       </div>
     </Transition>
 
-    <!-- CONTENT -->
-    <main class="flex-1">
+    <main class="flex-1 relative z-10">
       <slot />
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-foreground text-background pt-24 pb-12 relative overflow-hidden">
-      <!-- Decorative background -->
-      <div class="absolute -top-32 -right-32 size-[600px] border border-white/[0.03] rounded-xl"></div>
+    <footer class="bg-foreground text-background pt-24 pb-12 relative overflow-hidden border-t border-border">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
       
-      <div class="container mx-auto px-6">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-px h-16 bg-primary/30 hidden lg:block"></div>
+
+      <div class="container mx-auto px-6 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-          <div class="space-y-8">
-            <NuxtLink to="/" class="flex items-center gap-3">
-              <div class="size-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <GraduationCap class="size-7 text-white" />
+          
+          <div class="space-y-10">
+            <NuxtLink to="/" class="flex items-center gap-4 group">
+              <div class="w-14 h-14 bg-primary rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-background transition-all duration-500">
+                <GraduationCap class="w-8 h-8 text-primary-foreground group-hover:text-foreground transition-all" />
               </div>
-              <span class="text-2xl font-black tracking-tighter italic">PesantrenKu</span>
+              <div class="space-y-1">
+                <span class="text-2xl font-black tracking-tighter uppercase leading-none block">Pesantren<span class="italic font-serif lowercase text-primary">Ku</span></span>
+                <span class="text-[9px] font-bold text-background/40 uppercase tracking-[0.3em] leading-none block">Lembaga Terakreditasi</span>
+              </div>
             </NuxtLink>
-            <p class="text-primary-foreground/50 text-sm font-medium leading-relaxed italic">
-              {{ settings.site_description || 'Membentuk karakter generasi robbani yang cerdas, berwawasan global, dan berpegang teguh pada nilai-nilai Al-Qur\'an dan As-Sunnah.' }}
+            <p class="text-background/50 text-sm font-medium leading-loose font-serif italic max-w-xs border-l border-primary/20 pl-6">
+              {{ settings.site_description || 'Membentuk karakter generasi robbani yang cerdas, berwawasan global, dan berpegang teguh pada nilai-nilai Al-Qur\'an dan As-Sunnah secara terstruktur.' }}
             </p>
-            <div class="flex gap-4 pt-4">
-               <a :href="settings.social_instagram" class="size-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-primary transition-all"><Instagram class="size-4" /></a>
-               <a :href="settings.social_facebook" class="size-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-primary transition-all"><Facebook class="size-4" /></a>
-               <a :href="settings.social_youtube" class="size-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-primary transition-all"><Youtube class="size-4" /></a>
+            <div class="flex gap-3 pt-2">
+              <a v-for="(soc, i) in [
+                { icon: Instagram, link: settings.social_instagram },
+                { icon: Facebook, link: settings.social_facebook },
+                { icon: Youtube, link: settings.social_youtube }
+              ]" :key="i" :href="soc.link" class="w-10 h-10 border border-background/10 bg-background/5 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                <component :is="soc.icon" class="w-4 h-4" />
+              </a>
             </div>
           </div>
 
-          <div class="space-y-8">
-            <h3 class="text-lg font-black tracking-tight italic flex items-center gap-2">
-               <div class="w-2 h-2 bg-primary rounded-xl"></div> Tautan Cepat
-            </h3>
-            <ul class="space-y-4">
+          <div class="space-y-10">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-[2px] bg-primary"></div>
+              <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-background/80">Navigasi Utama</h3>
+            </div>
+            <ul class="space-y-5">
               <li v-for="link in navLinks.slice(1)" :key="link.path">
-                <NuxtLink :to="link.path" class="text-sm font-bold text-primary-foreground/60 hover:text-primary transition-colors flex items-center gap-2 group">
-                   <ChevronRight class="size-3.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
-                   {{ link.name }}
+                <NuxtLink :to="link.path" class="text-[11px] font-bold uppercase tracking-widest text-background/40 hover:text-primary transition-all flex items-center gap-4 group">
+                  <div class="w-0 h-px bg-primary group-hover:w-4 transition-all duration-500"></div>
+                  {{ link.name }}
                 </NuxtLink>
               </li>
             </ul>
           </div>
 
-          <div class="space-y-8">
-             <h3 class="text-lg font-black tracking-tight italic flex items-center gap-2 text-left">
-               <div class="w-2 h-2 bg-primary rounded-xl"></div> Menu Akademik
-            </h3>
-             <ul class="space-y-4">
-              <li><NuxtLink to="/fasilitas" class="text-sm font-bold text-primary-foreground/60 hover:text-primary transition-colors flex items-center gap-2 group text-left">Kurikulum Terpadu</NuxtLink></li>
-              <li><NuxtLink to="/index" class="text-sm font-bold text-primary-foreground/60 hover:text-primary transition-colors flex items-center gap-2 group text-left">Penerimaan Santri</NuxtLink></li>
-              <li><NuxtLink to="/sejarah" class="text-sm font-bold text-primary-foreground/60 hover:text-primary transition-colors flex items-center gap-2 group text-left">Visi & Misi</NuxtLink></li>
-              <li><NuxtLink to="/brosur" class="text-sm font-bold text-primary-foreground/60 hover:text-primary transition-colors flex items-center gap-2 group text-left">Unduh Brosur</NuxtLink></li>
+          <div class="space-y-10">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-[2px] bg-primary"></div>
+              <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-background/80">Sistem Akademik</h3>
+            </div>
+            <ul class="space-y-5">
+              <li v-for="item in [
+                { n: 'Kurikulum Terpadu', p: '/fasilitas' },
+                { n: 'Penerimaan Santri', p: '/kontak' },
+                { n: 'Visi & Peradaban', p: '/sejarah' },
+                { n: 'Arsip Dokumentasi', p: '/galeri' }
+              ]" :key="item.n">
+                <NuxtLink :to="item.p" class="text-[11px] font-bold uppercase tracking-widest text-background/40 hover:text-primary transition-all flex items-center gap-4 group">
+                  <div class="w-0 h-px bg-primary group-hover:w-4 transition-all duration-500"></div>
+                  {{ item.n }}
+                </NuxtLink>
+              </li>
             </ul>
           </div>
 
-          <div class="space-y-8">
-            <h3 class="text-lg font-black tracking-tight italic flex items-center gap-2">
-               <div class="w-2 h-2 bg-primary rounded-xl"></div> Hubungi Kami
-            </h3>
-            <div class="space-y-6">
-               <div class="flex items-start gap-4 text-left">
-                  <MapPin class="size-5 text-primary shrink-0 mt-1" />
-                  <p class="text-[11px] font-bold text-primary-foreground/50 leading-relaxed uppercase tracking-widest">{{ settings.contact_address || 'Jl. Raya Pendidikan Utama No. 1, Bogor' }}</p>
-               </div>
-               <div class="flex items-center gap-4 text-left">
-                  <Phone class="size-5 text-primary shrink-0" />
-                  <p class="text-lg font-black tracking-tighter">{{ settings.contact_phone || '+62 800-0000-0000' }}</p>
-               </div>
-               <div class="flex items-center gap-4 text-left">
-                  <Mail class="size-5 text-primary shrink-0" />
-                  <p class="text-sm font-bold text-primary-foreground/60">{{ settings.contact_email || 'hubungi@pesantrenku.com' }}</p>
-               </div>
+          <div class="space-y-10">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-[2px] bg-primary"></div>
+              <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-background/80">Hubungi Pusat</h3>
+            </div>
+            <div class="space-y-8">
+              <div class="group cursor-default">
+                  <span class="text-[8px] font-black uppercase tracking-[0.2em] text-primary block mb-2">Lokasi Kampus</span>
+                  <p class="text-[11px] font-bold text-background/50 leading-relaxed uppercase tracking-widest group-hover:text-background transition-colors">{{ settings.contact_address || 'Jl. Raya Pendidikan Utama No. 1, Bogor' }}</p>
+              </div>
+              <div class="group cursor-default">
+                  <span class="text-[8px] font-black uppercase tracking-[0.2em] text-primary block mb-2">Layanan WhatsApp</span>
+                  <p class="text-xl font-black tracking-tighter group-hover:text-background transition-colors">{{ settings.contact_phone || '+62 800-0000-0000' }}</p>
+              </div>
+              <div class="group cursor-default">
+                  <span class="text-[8px] font-black uppercase tracking-[0.2em] text-primary block mb-2">Surel Resmi</span>
+                  <p class="text-[11px] font-bold text-background/50 group-hover:text-background transition-colors uppercase tracking-widest">{{ settings.contact_email || 'hubungi@pesantrenku.com' }}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="pt-12 border-t border-white/[0.05] flex flex-col md:flex-row justify-between items-center gap-8">
-          <p class="text-[10px] font-bold text-primary-foreground/30 uppercase tracking-[0.3em]">
-            © 2026 PESANTRENKU MODERN. ALL RIGHTS RESERVED.
-          </p>
-          <div class="flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-primary-foreground/40">
-             <NuxtLink class="hover:text-primary">Kebijakan Privasi</NuxtLink>
-             <NuxtLink class="hover:text-primary">Syarat & Ketentuan</NuxtLink>
-             <NuxtLink to="/login" class="text-primary hover:underline">Admin Login</NuxtLink>
+        <div class="pt-12 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <p class="text-[9px] font-bold text-background/20 uppercase tracking-[0.4em]">
+              © 2026 PESANTRENKU MODERN SYSTEM.
+            </p>
+            <div class="h-px w-8 bg-background/10 hidden md:block"></div>
+            <NuxtLink to="/admin/login" class="text-[9px] font-black uppercase tracking-[0.3em] text-background/30 hover:text-white transition-colors flex items-center gap-2">
+                <div class="w-1.5 h-1.5 bg-primary"></div> Akses Enkripsi Admin
+            </NuxtLink>
+          </div>
+          <div class="flex gap-8 text-[9px] font-black uppercase tracking-[0.3em] text-background/40">
+            <NuxtLink class="hover:text-primary transition-colors cursor-pointer">Security</NuxtLink>
+            <NuxtLink class="hover:text-primary transition-colors cursor-pointer">Privacy</NuxtLink>
+            <NuxtLink class="hover:text-primary transition-colors cursor-pointer">Terms</NuxtLink>
           </div>
         </div>
       </div>
     </footer>
 
-    <!-- FLOAT BUTTON -->
-    <a href="https://wa.me/6280000000000" target="_blank" class="fixed bottom-10 right-10 z-50 size-16 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 hover:bg-emerald-600 transition-all active:scale-95 group">
-       <MessageCircle class="size-8" />
-       <span class="absolute right-full mr-4 bg-white text-emerald-600 px-4 py-2 rounded-xl text-xs font-black shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-emerald-100">Tanya Admin via WhatsApp</span>
+    <a href="https://wa.me/6280000000000" target="_blank" class="fixed bottom-10 right-10 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-xl flex items-center justify-center shadow-none hover:bg-foreground transition-all active:scale-95 group border border-border">
+       <MessageCircle class="w-6 h-6" />
+       <span class="absolute right-full mr-4 bg-foreground text-background px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-border pointer-events-none">Hubungi via WhatsApp</span>
     </a>
   </div>
 </template>
@@ -267,6 +287,17 @@ onMounted(() => {
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(10px);
+}
+
+/* Custom Scrollbar for Mobile Menu */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
 }
 </style>
